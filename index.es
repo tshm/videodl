@@ -18,7 +18,7 @@ let my_sheet = new GoogleSpreadsheet(spreadsheet_key)
 let creds = require('./account.json')
 
 let execDl = (url) => {
-	exec(`youtube-dl "${url}"`)
+	exec(`youtube-dl --write-sub "${url}"`)
 }
  
 my_sheet.useServiceAccountAuth(creds, (err) => {
