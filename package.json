@@ -1,0 +1,22 @@
+{
+  "name": "videodl",
+  "version": "0.0.1",
+  "description": "videodl connector",
+  "main": "index.js",
+  "dependencies": {
+    "google-spreadsheet": "^1.1.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0",
+    "eslint-config-google": "^0.3.0"
+  },
+  "scripts": {
+    "build": "babel index.es -o index.js",
+    "watch": "babel index.es --watch -o index.js --source-maps inline",
+    "exec": "node index.js",
+    "test": "eslint index.es"
+  },
+  "author": "",
+  "license": "ISC"
+}
