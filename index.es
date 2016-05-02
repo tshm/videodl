@@ -21,25 +21,30 @@ const creds = require('./account.json')
 const execDl = (url) => {
 	exec(`youtube-dl "${url}"`)
 }
+
+function abort( err ) {
+	console.log('videodl: error!!: ', err)
+	process.exit()
+}
  
 my_sheet.useServiceAccountAuth(creds, (err) => {
 	// getInfo returns info about the sheet and an array or "worksheet" objects 
-	if (err) { console.log( 'error: ' + err ) }
+	if (err) { abort(err) }
 	my_sheet.getInfo((err, sheet_info) => {
-		if (err) { console.log( 'error: ' + err ) }
-		console.log( sheet_info.title + ' is loaded' )
+		if (err) { abort(err) }
+		console.log(`videodl: ${sheet_info.title} is loaded.`)
 		// use worksheet object if you want to stop using the # in your calls 
  
 		const sheet1 = sheet_info.worksheets[0]
 		sheet1.getRows({query: 'seen != 1'}, (err, rows) => {
-			if (err) { console.log( 'error: ' + err ) }
+			if (err) { abort(err) }
 			//console.log(rows[0]);
 			rows.forEach((row) => {
 				//if (row.seen) return;
-				console.log('download: ' + row.title)
+				console.log('videodl: download: ' + row.title)
 				execDl( row.url )
 				row.seen = 1
-				row.save()
+				row.save((a) => {console.log(`videodl: row.save() => ${a}`)})
 			})
 		})
 	})
