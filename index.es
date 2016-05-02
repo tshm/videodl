@@ -1,3 +1,4 @@
+'use strict'
 console.log('starting application ...')
 const GoogleSpreadsheet = require('google-spreadsheet')
 const exec = require('child_process').execSync
@@ -18,7 +19,7 @@ const my_sheet = new GoogleSpreadsheet(spreadsheet_key)
 const creds = require('./account.json')
 
 const execDl = (url) => {
-	exec(`youtube-dl --write-sub "${url}"`)
+	exec(`youtube-dl "${url}"`)
 }
  
 my_sheet.useServiceAccountAuth(creds, (err) => {
