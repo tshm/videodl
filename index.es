@@ -18,7 +18,7 @@ const my_sheet = new GoogleSpreadsheet(spreadsheet_key)
 // see below for authentication instructions 
 const creds = require('./account.json')
 
-const execDl = (url) => {
+function execDl(url) {
 	exec(`youtube-dl "${url}"`)
 }
 
@@ -38,11 +38,16 @@ my_sheet.useServiceAccountAuth(creds, (err) => {
 		const sheet1 = sheet_info.worksheets[0]
 		sheet1.getRows({query: 'seen != 1'}, (err, rows) => {
 			if (err) { abort(err) }
+			console.log(`videodl: number of videos: ${rows.length}`)
 			//console.log(rows[0]);
-			rows.forEach((row) => {
+			rows.forEach((row, i) => {
 				//if (row.seen) return;
-				console.log('videodl: download: ' + row.title)
-				execDl( row.url )
+				console.log(`videodl: download[${i+1}/${rows.length}]: ${row.title}`)
+				try {
+					execDl( row.url )
+				} catch(e) {
+					console.log(`videodl: download failed... ${row.title}`)
+				}
 				row.seen = 1
 				row.save((a) => {console.log(`videodl: row.save() => ${a}`)})
 			})
