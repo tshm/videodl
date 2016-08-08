@@ -17,7 +17,7 @@ function getDownloader() {
 }
 
 function abort(err) {
-	console.log('videodl: error!!: ', err)
+	console.error('videodl: error!!: ', err)
 	process.exit()
 }
 
@@ -28,38 +28,41 @@ function getData() {
 	return app.database()
 }
 
+function download(execDl) {
+	const database = getData()
+	database.ref('videos').once('value')
+	.then(ss => {
+		const obj = ss.val()
+		return Promise.all(Object.keys(obj).map(k => {
+			const v = obj[k]
+			if (v.watched) {
+				console.log('skipping watched: ', v.title)
+				return false
+			}
+			console.log('downloading: ', v.title)
+			try {
+				execDl(v.url)
+			} catch(e) {
+				console.error(`videodl: download failed... ${v.title} (${e})`)
+			}
+			return database.ref(`videos/${k}/watched`).set(true)
+		}))
+	})
+	.then((e) => {
+		console.log('process complete.  exiting.', e)
+		process.exit()
+	})
+	.catch((e) => abort(`something failed ${e}`))
+}
+
 /**   main procedure
  */
+function main() {
+	console.log('starting application ...')
+	processArguments()
+	const execDl = getDownloader()
+	download(execDl)
+}
 
-console.log('starting application ...')
-processArguments()
-const execDl = getDownloader()
-
-// const o = database.ref('videos').push({title: 'test title', url:'xxx'})
-// console.log('newkey', o.key)
-
-const database = getData()
-database.ref('videos').once('value')
-.then(ss => {
-	const obj = ss.val()
-	return Promise.all(Object.keys(obj).map(k => {
-		const v = obj[k]
-		if (v.watched) {
-			console.log('skipping watched: ', v.title)
-			return false
-		}
-		console.log('downloading: ', v.title)
-		try {
-			execDl(v.url)
-		} catch(e) {
-			console.log(`videodl: download failed... ${v.title} (${e})`)
-		}
-		return database.ref(`videos/${k}/watched`).set(true)
-	}))
-})
-.then((e) => {
-	console.log('process complete.  exiting.', e)
-	process.exit()
-})
-.catch((e) => abort(`something failed ${e}`))
+main()
 
