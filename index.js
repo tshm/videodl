@@ -30,8 +30,8 @@ function getData() {
 	return app.database()
 }
 
-function download(execDl) {
-	const database = getData()
+function download(database) {
+	const execDl = getDownloader()
 	database.ref('videos').once('value')
 	.then(ss => {
 		const obj = ss.val()
@@ -39,20 +39,20 @@ function download(execDl) {
 			console.log('empty list')
 			return false
 		}
-		return Promise.all(Object.keys(obj).map(k => {
+		return Object.keys(obj).map(k => {
 			const v = obj[k]
 			if (v.watched) {
-				console.log('skipping watched: ', v.title)
-				return false
+				console.log('deleting pre-marked item: ', v.title)
+				return database.ref(`videos/${k}`).remove()
 			}
-			console.log('downloading: ', v.title)
 			try {
+				console.log('downloading: ', v.title)
 				execDl(v.url)
 			} catch(e) {
 				console.error(`videodl: download failed... ${v.title} (${e})`)
 			}
 			return database.ref(`videos/${k}/watched`).set(true)
-		}))
+		})
 	})
 	.then((e) => {
 		console.log('process complete.  exiting.', e)
@@ -66,8 +66,8 @@ function download(execDl) {
 function main() {
 	console.log('starting application ...')
 	processArguments()
-	const execDl = getDownloader()
-	download(execDl)
+	const database = getData()
+	download(database)
 }
 
 main()
