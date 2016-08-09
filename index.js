@@ -23,22 +23,9 @@ function abort(err) {
 
 function getData() {
 	const firebase = require('firebase')
-	// const creds = require('./account.json')
-	// const config = {
-	// 	apiKey: 'AIzaSyDroYR8BeF1qgSYpCfYqjljgwoUMHUABos',
-	// 	authDomain: 'favideo-21e5b.firebaseapp.com',
-	// 	databaseURL: 'https://favideo-21e5b.firebaseio.com',
-	// 	storageBucket: 'favideo-21e5b.appspot.com',
-	// }
-	// const app = firebase.initializeApp(config)
-	// app.auth('RvyEZfA7SNp4vvFtx8RB7yeF2wpDznVIsl9peLTD')
-	// const token = 'RvyEZfA7SNp4vvFtx8RB7yeF2wpDznVIsl9peLTD'
-	// firebase.auth().signInWithCustomToken(token).catch(error => {
-	// 	console.log(error)
-	// })
 	const app = firebase.initializeApp({
 		databaseURL: 'https://favideo-21e5b.firebaseio.com',
-		serviceAccount: './account.json'
+		serviceAccount: require('path').resolve(__dirname, 'account.json')
 	})
 	return app.database()
 }
