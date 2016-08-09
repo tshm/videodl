@@ -13,10 +13,8 @@
     "url": "git+https://github.com/tshm/videodl.git"
   },
   "scripts": {
-    "build": "babel index.es -o index.js",
-    "watch": "babel index.es --watch -o index.js --source-maps inline",
     "exec": "node index.js",
-    "test": "eslint index.es"
+    "test": "eslint index.js"
   },
   "author": "",
   "license": "ISC"
