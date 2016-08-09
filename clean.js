@@ -19,6 +19,10 @@ function clean() {
 	database.ref('videos').once('value')
 	.then(ss => {
 		const obj = ss.val()
+		if (!obj) {
+			console.log('empty list')
+			return false
+		}
 		return Promise.all(Object.keys(obj).map(k => {
 			const v = obj[k]
 			if (!v.watched) {
