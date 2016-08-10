@@ -39,7 +39,7 @@ function download(database) {
 			console.log('empty list')
 			return false
 		}
-		return Object.keys(obj).map(k => {
+		return Promise.all(Object.keys(obj).map(k => {
 			const v = obj[k]
 			if (v.watched) {
 				console.log('deleting pre-marked item: ', v.title)
@@ -52,7 +52,7 @@ function download(database) {
 				console.error(`videodl: download failed... ${v.title} (${e})`)
 			}
 			return database.ref(`videos/${k}/watched`).set(true)
-		})
+		}))
 	})
 	.then((e) => {
 		console.log('process complete.  exiting.', e)
