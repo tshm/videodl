@@ -50,6 +50,7 @@ function download(database) {
 				execDl(v.url)
 			} catch(e) {
 				console.error(`videodl: download failed... ${v.title} (${e})`)
+				return false
 			}
 			return database.ref(`videos/${k}/watched`).set(true)
 		}))
