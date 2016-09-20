@@ -22,7 +22,7 @@ function getDownloader() {
 			return m2t.getLink(url)
 				.then( link => {
 					console.log(`tlink: ${ link }`)
-					return exec(`wget ${ link }`).code == 0
+					return exec(`wget -p ../ ${ link }`).code == 0
 				})
 				.fail( e => {
 					console.error(`retrieval failed: ${ e }`)
