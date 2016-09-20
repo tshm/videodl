@@ -1,4 +1,11 @@
 module.exports = {
+    "globals": {
+        "cd": true,
+        "echo": true,
+        "exit": true,
+        "grep": true,
+        "exec": true
+    },
     "rules": {
         "no-console": 0,
         "indent": [
