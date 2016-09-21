@@ -12,24 +12,37 @@ function processArguments() {
 	return false
 }
 
+function run( cmd ) {
+	return new Promise(( resolve, reject ) => {
+		const exitcode = exec( cmd ).code
+		if ( exitcode == 0 ) {
+			echo(`running ${ cmd } succeed`)
+			resolve( exitcode )
+		} else {
+			echo(`running ${ cmd } failed`)
+			reject( exitcode )
+		}
+	})
+}
+
 function getDownloader() {
 	const m2t = require('magnet-to-torrent')
-	const r = /^magnet:/
+	const magnet = /^magnet:/
 	return function execDl(url) {
-		// echo(`URL: ${ url }`)
-		if (url.match(r)) {
+		if (url.match(magnet)) {
 			echo('downloading magnet')
 			return m2t.getLink(url)
 				.then( link => {
 					console.log(`tlink: ${ link }`)
-					return exec(`wget -P ../ ${ link }`).code == 0
+					return run(`wget -P ../ ${ link }`)
 				})
-				.fail( e => {
-					console.error(`retrieval failed: ${ e }`)
-					return false
+				.catch( e => {
+					console.error(`magnet retrieval failed: ${ e }`)
+					throw e
 				})
 		}
-		return exec(`youtube-dl "${ url }"`).code == 0
+		echo('calling ytdl')
+		return run(`youtube-dl --no-progress "${ url }"`)
 	}
 }
 
@@ -58,14 +71,12 @@ function download(database) {
 				return database.ref(`videos/${k}`).remove()
 			}
 			console.log('downloading: ', v.title)
-			return execDl(v.url).then(e =>
-				e ? database.ref(`videos/${k}/watched`).set(true) : false
-			).fail(e => {
-				echo('retry next visit.', e)
-				return false
+			return execDl(v.url).then(v => {
+				echo(`execDl success: ${ v }`)
+				return database.ref(`videos/${k}/watched`).set(true)
 			}).catch(e => {
 				console.error(`videodl: download failed... ${v.title} (${e})`)
-				return false
+				throw e
 			})
 		}))
 	})
@@ -78,8 +89,11 @@ function main() {
 	if (processArguments()) {
 		const database = getData()
 		download(database).then(v => {
-			echo('exiting')
+			echo(`exiting: ${ v }`)
 			exit(0)
+		}).catch(e => {
+			console.error(`some failed: ${ e }`)
+			throw e
 		})
 	}
 }
