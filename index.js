@@ -22,20 +22,15 @@ function getDownloader() {
 			return m2t.getLink(url)
 				.then( link => {
 					console.log(`tlink: ${ link }`)
-					return exec(`wget -p ../ ${ link }`).code == 0
+					return exec(`wget -P ../ ${ link }`).code == 0
 				})
 				.fail( e => {
 					console.error(`retrieval failed: ${ e }`)
 					return false
 				})
 		}
-		return exec(`youtube-dl "${ url }"`)
+		return exec(`youtube-dl "${ url }"`).code == 0
 	}
-}
-
-function abort(err) {
-	console.error('videodl: error!!: ', err)
-	exit(1)
 }
 
 function getData() {
