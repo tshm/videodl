@@ -4,9 +4,9 @@
   "description": "videodl connector",
   "main": "index.js",
   "dependencies": {
-    "firebase": "^3.2.1",
-    "magnet-to-torrent": "^0.1.0",
-    "shelljs": "^0.7.4"
+    "firebase": "^3.7.1",
+    "magnet-to-torrent": "^0.1.2",
+    "shelljs": "^0.7.7"
   },
   "devDependencies": {},
   "repository": {

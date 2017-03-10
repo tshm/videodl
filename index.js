@@ -1,7 +1,7 @@
 'use strict'
 require('shelljs/global')
 
-function processArguments() {
+function processArguments () {
 	const proc = require('process')
 	// change current dir
 	if ( proc.argv.length > 2 ) {
@@ -12,7 +12,7 @@ function processArguments() {
 	return false
 }
 
-function run( cmd ) {
+function run ( cmd ) {
 	return new Promise(( resolve, reject ) => {
 		const exitcode = exec( cmd ).code
 		if ( exitcode == 0 ) {
@@ -25,7 +25,7 @@ function run( cmd ) {
 	})
 }
 
-function getDownloader() {
+function getDownloader () {
 	const m2t = require('magnet-to-torrent')
 	const magnet = /^magnet:/
 	return function execDl( url ) {
