@@ -9,6 +9,7 @@ function processArguments () {
     cd(proc.argv[2])
     return true
   }
+  echo(`need folder path`)
   return false
 }
 
@@ -26,21 +27,7 @@ function run (cmd) {
 }
 
 function getDownloader () {
-  const m2t = require('magnet-to-torrent')
-  const magnet = /^magnet:/
   return function execDl (url) {
-    if (url.match(magnet)) {
-      echo('downloading magnet')
-      return m2t.getLink(url)
-        .then(link => {
-          echo(`tlink: ${link}`)
-          return run(`wget -P ../ ${link}`)
-        })
-        .catch(e => {
-          console.error(`magnet retrieval failed: ${e}`)
-          throw e
-        })
-    }
     echo('calling ytdl')
     return run(`youtube-dl --no-progress "${url}"`)
   }
@@ -48,10 +35,8 @@ function getDownloader () {
 
 function getData () {
   const firebase = require('firebase')
-  const app = firebase.initializeApp({
-    databaseURL: 'https://favideo-21e5b.firebaseio.com',
-    serviceAccount: require('path').resolve(__dirname, 'account.json')
-  })
+  const config = require(require('path').resolve(__dirname, 'account.json'))
+  const app = firebase.initializeApp(config)
   return app.database()
 }
 
