@@ -4,8 +4,9 @@
   "description": "videodl connector",
   "main": "index.js",
   "dependencies": {
-    "firebase": "^4.1.2",
-    "shelljs": "^0.7.7"
+    "firebase": "^4.3.0",
+    "shelljs": "^0.7.7",
+    "standard": "^10.0.3"
   },
   "devDependencies": {
     "standard": "^10.0.2"
