@@ -40,46 +40,44 @@ function getData () {
   return app.database()
 }
 
-function download (database) {
+async function download (database) {
   const execDl = getDownloader()
-  return database.ref('videos').once('value')
-  .then(ss => {
-    const obj = ss.val()
-    if (!obj) {
+  try {
+    const dataEntry = await database.ref('videos').once('value')
+    const list = dataEntry.val()
+    if (!list) {
       echo('empty list')
       return false
     }
-    return Promise.all(Object.keys(obj).map(k => {
-      const v = obj[ k ]
-      if (v.watched) {
-        echo(`deleting pre-marked item: ${v.title}`)
+    return await Promise.all(Object.keys(list).map(async k => {
+      const video = list[k]
+      if (video.watched) {
+        echo(`deleting pre-marked item: ${video.title}`)
         return database.ref(`videos/${k}`).remove()
       }
-      echo(`downloading: ${v.title}`)
-      return execDl(v.url).then(v => {
-        echo(`execDl success: ${v}`)
-        return database.ref(`videos/${k}/watched`).set(true)
-      }).catch(e => {
-        console.error(`videodl: download failed... ${v.title} (${e})`)
-        throw e
-      })
+      echo(`downloading: ${video.title}`)
+      const r = await execDl(video.url)
+      echo(`execDl success: ${r}`)
+      return database.ref(`videos/${k}/watched`).set(true)
     }))
-  })
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 /**   main procedure
- */
+*/
 function main () {
   echo('starting application ...')
-  if (processArguments()) {
-    const database = getData()
-    download(database).then(v => {
-      echo(`exiting: ${v}`)
-      exit(0)
-    }).catch(e => {
-      console.error(`some failed: ${e}`)
-      exit(1)
-    })
+  if (!processArguments()) exit(1)
+  const database = getData()
+  try {
+    const v = download(database)
+    echo(`exiting: ${v}`)
+    exit(0)
+  } catch (e) {
+    console.error(`some failed: ${e}`)
+    exit(1)
   }
 }
 
