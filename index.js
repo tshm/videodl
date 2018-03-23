@@ -43,28 +43,28 @@ function getData () {
 function download (database) {
   const execDl = getDownloader()
   return database.ref('videos').once('value')
-  .then(ss => {
-    const obj = ss.val()
-    if (!obj) {
-      echo('empty list')
-      return false
-    }
-    return Promise.all(Object.keys(obj).map(k => {
-      const v = obj[ k ]
-      if (v.watched) {
-        echo(`deleting pre-marked item: ${v.title}`)
-        return database.ref(`videos/${k}`).remove()
+    .then(ss => {
+      const obj = ss.val()
+      if (!obj) {
+        echo('empty list')
+        return false
       }
-      echo(`downloading: ${v.title}`)
-      return execDl(v.url).then(v => {
-        echo(`execDl success: ${v}`)
-        return database.ref(`videos/${k}/watched`).set(true)
-      }).catch(e => {
-        console.error(`videodl: download failed... ${v.title} (${e})`)
-        throw e
-      })
-    }))
-  })
+      return Promise.all(Object.keys(obj).map(k => {
+        const v = obj[ k ]
+        if (v.watched) {
+          echo(`deleting pre-marked item: ${v.title}`)
+          return database.ref(`videos/${k}`).remove()
+        }
+        echo(`downloading: ${v.title}`)
+        return execDl(v.url).then(v => {
+          echo(`execDl success: ${v}`)
+          return database.ref(`videos/${k}/watched`).set(true)
+        }).catch(e => {
+          console.error(`videodl: download failed... ${v.title} (${e})`)
+          throw e
+        })
+      }))
+    })
 }
 
 /**   main procedure
