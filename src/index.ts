@@ -41,7 +41,7 @@ const execDl = (url: string) => {
 };
 
 function getData() {
-  const config = require(path.resolve(__dirname, 'account.json'));
+  const config = require(path.resolve(__dirname, '../account.json'));
   const app = firebase.initializeApp(config);
   return app.database();
 }
@@ -65,6 +65,7 @@ async function download(database: firebase.database.Database) {
       const dlResult = await execDl(v.url);
       log.info(`execDl success: ${dlResult}`);
       try {
+        if (DRY_RUN) return true;
         await database.ref(`videos/${k}/watched`).set(true);
         return true;
       } catch (e) {
