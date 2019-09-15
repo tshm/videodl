@@ -3,6 +3,7 @@ import { getLogger } from 'log4js';
 import * as firebase from 'firebase';
 import * as proc from 'process';
 import * as path from 'path';
+import { fail } from 'assert';
 
 const log = getLogger();
 const DRY_RUN = process.env.DRY_RUN || false;
@@ -36,7 +37,12 @@ const run = (cmd: string) =>
 const execDl = (url: string) => {
   log.info('calling ytdl');
   const cmdstr = `youtube-dl --no-progress "${url}"`;
-  if (DRY_RUN) return run(`echo ${cmdstr}`);
+  if (DRY_RUN) {
+    if (url.match('Su')) {
+      throw new Error('test'); //return run(`echo ${cmdstr}`);
+    }
+    return true;
+  }
   return run(cmdstr);
 };
 
@@ -73,7 +79,7 @@ async function download(database: firebase.database.Database) {
       }
     } catch (e) {
       log.error(`videodl: download failed... ${v.title} (${e})`);
-      throw e;
+      return false;
     }
   });
   return Promise.all(jobs);
