@@ -2,22 +2,27 @@
   "name": "videodl",
   "version": "0.0.2",
   "description": "videodl connector",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "dependencies": {
-    "firebase": "^4.3.0",
-    "shelljs": "^0.7.7",
-    "standard": "^10.0.3"
+    "firebase": "^6.6.1",
+    "shelljs": "^0.8.3"
   },
   "devDependencies": {
-    "standard": "^10.0.2"
+    "@types/shelljs": "^0.8.5",
+    "prettier": "^1.18.2",
+    "ts-node-dev": "^1.0.0-pre.42",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.6.3"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tshm/videodl.git"
   },
   "scripts": {
-    "exec": "node index.js",
-    "test": "standard index.js"
+    "exec": "ts-node ./src/index.ts",
+    "tsc": "tsc ./src/index.ts"
   },
   "author": "",
   "license": "ISC"
