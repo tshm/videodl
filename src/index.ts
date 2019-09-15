@@ -1,16 +1,22 @@
-import { echo, cd, exit, exec } from 'shelljs';
-import * as proc from 'process';
+import { cd, exit, exec } from 'shelljs';
+import { getLogger } from 'log4js';
 import * as firebase from 'firebase';
+import * as proc from 'process';
 import * as path from 'path';
+
+const log = getLogger();
+const DRY_RUN = process.env.DRY_RUN || false;
+log.level = DRY_RUN ? 'debug' : 'info';
+if (DRY_RUN) log.debug('run as DRY_RUN');
 
 function processArguments() {
   // change current dir
   if (proc.argv.length > 2) {
-    echo(`change dir to "${proc.argv[2]}"`);
+    log.info(`change dir to "${proc.argv[2]}"`);
     cd(proc.argv[2]);
     return true;
   }
-  echo(`need folder path`);
+  log.info(`need folder path`);
   return false;
 }
 
@@ -19,17 +25,19 @@ const run = (cmd: string) =>
   new Promise<number>((resolve, reject) => {
     const exitcode = exec(cmd).code;
     if (exitcode === 0) {
-      echo(`running ${cmd} succeed`);
+      log.info(`running ${cmd} succeed`);
       resolve(exitcode);
     } else {
-      echo(`running ${cmd} failed`);
+      log.error(`running ${cmd} failed`);
       reject(exitcode);
     }
   });
 
 const execDl = (url: string) => {
-  echo('calling ytdl');
-  return run(`youtube-dl --no-progress "${url}"`);
+  log.info('calling ytdl');
+  const cmdstr = `youtube-dl --no-progress "${url}"`;
+  if (DRY_RUN) return run(`echo ${cmdstr}`);
+  return run(cmdstr);
 };
 
 function getData() {
@@ -42,20 +50,20 @@ async function download(database: firebase.database.Database) {
   const snapshot = await database.ref('videos').once('value');
   const obj = snapshot.val();
   if (!obj) {
-    echo('empty list');
+    log.info('empty list');
     return false;
   }
   const jobs = Object.keys(obj).map(async k => {
     const v = obj[k];
     if (v.watched) {
-      echo(`deleting pre-marked item: ${v.title}`);
+      log.info(`deleting pre-marked item: ${v.title}`);
       await database.ref(`videos/${k}`).remove();
       return true;
     }
-    echo(`downloading: ${v.title}`);
+    log.info(`downloading: ${v.title}`);
     try {
       const dlResult = await execDl(v.url);
-      echo(`execDl success: ${dlResult}`);
+      log.info(`execDl success: ${dlResult}`);
       try {
         await database.ref(`videos/${k}/watched`).set(true);
         return true;
@@ -63,7 +71,7 @@ async function download(database: firebase.database.Database) {
         return false;
       }
     } catch (e) {
-      console.error(`videodl: download failed... ${v.title} (${e})`);
+      log.error(`videodl: download failed... ${v.title} (${e})`);
       throw e;
     }
   });
@@ -73,15 +81,15 @@ async function download(database: firebase.database.Database) {
 /**   main procedure
  */
 async function main() {
-  echo('starting application ...');
+  log.info('starting application ...');
   if (!processArguments()) exit(1);
   const database = getData();
   try {
     const v = await download(database);
-    echo(`exiting: ${v}`);
+    log.info(`exiting: ${v}`);
     exit(0);
   } catch (e) {
-    console.error(`some failed: ${e}`);
+    log.error(`some failed: ${e}`);
     exit(1);
   }
 }
