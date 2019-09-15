@@ -9,8 +9,7 @@
   },
   "devDependencies": {
     "@types/shelljs": "^0.8.5",
-    "firebase": "^6.6.1",
-    "standard": "^12.0.1"
+    "firebase": "^6.6.1"
   },
   "repository": {
     "type": "git",
@@ -18,8 +17,7 @@
   },
   "scripts": {
     "exec": "node index.js",
-    "debug": "env DRY_RUN=true node index.js .",
-    "test": "standard index.js"
+    "debug": "env DRY_RUN=true node index.js ."
   },
   "author": "",
   "license": "ISC"
