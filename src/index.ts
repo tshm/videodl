@@ -1,11 +1,10 @@
 import { cd, exit, exec } from 'shelljs';
-import { getLogger } from 'log4js';
+import * as pino from 'pino';
 import * as firebase from 'firebase';
 import * as proc from 'process';
 import * as path from 'path';
-import { fail } from 'assert';
 
-const log = getLogger();
+const log = pino();
 const DRY_RUN = process.env.DRY_RUN || false;
 log.level = DRY_RUN ? 'debug' : 'info';
 if (DRY_RUN) log.debug('run as DRY_RUN');
@@ -17,7 +16,7 @@ function processArguments() {
     cd(proc.argv[2]);
     return true;
   }
-  log.info(`need folder path`);
+  log.info('need folder path');
   return false;
 }
 
@@ -59,7 +58,7 @@ async function download(database: firebase.database.Database) {
     log.info('empty list');
     return false;
   }
-  const jobs = Object.keys(obj).map(async k => {
+  const jobs = Object.keys(obj).map(k => async () => {
     const v = obj[k];
     if (v.watched) {
       log.info(`deleting pre-marked item: ${v.title}`);
@@ -82,7 +81,11 @@ async function download(database: firebase.database.Database) {
       return false;
     }
   });
-  return Promise.all(jobs);
+  let result = true;
+  for (const job of jobs) {
+    result = result && await job();
+  }
+  return result;
 }
 
 /**   main procedure
