@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "dependencies": {
     "firebase": "^7.0.0",
-    "pino": "^5.17.0",
+    "pino": "^6.0.0",
     "shelljs": "^0.8.3"
   },
   "devDependencies": {
@@ -16,7 +16,7 @@
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
     "pino-pretty": "^3.6.1",
-    "prettier": "^1.18.2",
+    "prettier": "^2.0.2",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.3"
   },

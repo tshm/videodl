@@ -105,3 +105,4 @@ async function main() {
 }
 
 main();
+log.info('ending....');
