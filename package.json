@@ -6,6 +6,7 @@
   "dependencies": {
     "firebase": "^7.0.0",
     "pino": "^6.0.0",
+    "pino-elasticsearch": "^5.0.0",
     "shelljs": "^0.8.3"
   },
   "devDependencies": {
@@ -15,7 +16,7 @@
     "eslint": "^6.7.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
-    "pino-pretty": "^3.6.1",
+    "pino-pretty": "^4.0.0",
     "prettier": "^2.0.2",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.3"
