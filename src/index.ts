@@ -58,7 +58,7 @@ async function download(database: firebase.database.Database) {
     log.info('empty list');
     return false;
   }
-  const jobs = Object.keys(obj).map(k => async () => {
+  const jobs = Object.keys(obj).map((k) => async () => {
     const v = obj[k];
     if (v.watched) {
       log.info(`deleting pre-marked item: ${v.title}`);
@@ -83,7 +83,7 @@ async function download(database: firebase.database.Database) {
   });
   let result = true;
   for (const job of jobs) {
-    result = result && await job();
+    result = result && (await job());
   }
   return result;
 }
