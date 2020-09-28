@@ -3,6 +3,7 @@ import * as pino from 'pino';
 import * as firebase from 'firebase';
 import * as proc from 'process';
 import * as path from 'path';
+import sanitize = require('sanitize-filename');
 
 const log = pino();
 const DRY_RUN = process.env.DRY_RUN || false;
@@ -10,39 +11,52 @@ log.level = DRY_RUN ? 'debug' : 'info';
 if (DRY_RUN) log.debug('run as DRY_RUN');
 
 function processArguments() {
-  // change current dir
   if (proc.argv.length > 2) {
     log.info(`change dir to "${proc.argv[2]}"`);
     cd(proc.argv[2]);
     return true;
   }
-  log.info('need folder path');
+  log.error('need folder path');
   return false;
 }
 
 /** run external command */
 const run = (cmd: string) =>
-  new Promise<number>((resolve, reject) => {
-    const exitcode = exec(cmd).code;
-    if (exitcode === 0) {
+  new Promise<[number, string]>((resolve, reject) => {
+    const ret = exec(cmd);
+    if (ret.code === 0) {
       log.info(`running ${cmd} succeed`);
-      resolve(exitcode);
+      resolve([ret.code, ret.stdout]);
     } else {
       log.error(`running ${cmd} failed`);
-      reject(exitcode);
+      reject([ret.code, ret.stdout]);
     }
   });
 
-const execDl = (url: string) => {
+/** sanitize filename */
+const getSafeFilename = (filename: string) =>
+  sanitize(
+    Buffer.byteLength(filename, 'utf8') > 200
+      ? path.basename(filename).substring(0, 50) + path.extname(filename)
+      : filename
+  );
+
+const execDl = async (url: string) => {
   log.info('calling ytdl');
-  const cmdstr = `youtube-dl --no-progress "${url}"`;
+  const cmd = 'youtube-dl';
+  const [code, streamname] = await run(`${cmd} --get-filename "${url}"`);
+  if (code !== 0) return code;
+  const filename = getSafeFilename(streamname);
   if (DRY_RUN) {
+    console.warn('filename: ', filename);
     if (url.match('Su')) {
       throw new Error('test'); //return run(`echo ${cmdstr}`);
     }
     return true;
   }
-  return run(cmdstr);
+  const dlcmd = `${cmd} --no-progress --output "${filename}" -- "${url}"`;
+  const [exitcode, _msg] = await run(dlcmd);
+  return exitcode;
 };
 
 function getData() {
