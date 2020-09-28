@@ -48,7 +48,7 @@ const execDl = async (url: string) => {
   if (code !== 0) return code;
   const filename = getSafeFilename(streamname);
   if (DRY_RUN) {
-    console.warn('filename: ', filename);
+    log.warn('filename: ', filename);
     if (url.match('Su')) {
       throw new Error('test'); //return run(`echo ${cmdstr}`);
     }
