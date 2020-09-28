@@ -7,22 +7,23 @@
     "singleQuote": true
   },
   "dependencies": {
-    "firebase": "^7.0.0",
-    "pino": "^6.0.0",
-    "pino-elasticsearch": "^5.0.0",
+    "firebase": "^7.21.1",
+    "pino": "^6.6.1",
+    "pino-elasticsearch": "^5.3.0",
+    "sanitize-filename": "^1.6.3",
     "shelljs": "^0.8.3"
   },
   "devDependencies": {
     "@types/shelljs": "^0.8.5",
-    "@typescript-eslint/eslint-plugin": "^3.0.1",
-    "@typescript-eslint/parser": "^3.0.1",
-    "eslint": "^7.1.0",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "pino-pretty": "^4.0.0",
-    "prettier": "^2.0.2",
-    "ts-node": "^8.4.1",
-    "typescript": "^3.9.3"
+    "@typescript-eslint/eslint-plugin": "^4.2.0",
+    "@typescript-eslint/parser": "^4.2.0",
+    "eslint": "^7.10.0",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "pino-pretty": "^4.2.1",
+    "prettier": "^2.1.2",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
   },
   "repository": {
     "type": "git",
