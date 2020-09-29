@@ -34,29 +34,25 @@ const run = (cmd: string) =>
   });
 
 /** sanitize filename */
-const getSafeFilename = (filename: string) =>
+const getSafeBasename = (basename: string) =>
   sanitize(
-    Buffer.byteLength(filename, 'utf8') > 200
-      ? path.basename(filename).substring(0, 50) + path.extname(filename)
-      : filename
+    Buffer.byteLength(basename, 'utf8') > 200
+      ? basename.substring(0, 50)
+      : basename
   );
 
-const execDl = async (url: string) => {
+const execDl = async (title: string, url: string) => {
   log.info('calling ytdl');
   const cmd = 'youtube-dl';
-  const [code, streamname] = await run(`${cmd} --get-filename "${url}"`);
-  if (code !== 0) return code;
-  const filename = getSafeFilename(streamname);
+  const basename = getSafeBasename(title);
   if (DRY_RUN) {
-    log.warn('filename: ', filename);
-    if (url.match('Su')) {
-      throw new Error('test'); //return run(`echo ${cmdstr}`);
-    }
+    log.warn('DRYRUN: basename: ', basename);
     return true;
   }
-  const dlcmd = `${cmd} --no-progress --output "${filename}" -- "${url}"`;
-  const [exitcode, _msg] = await run(dlcmd);
-  return exitcode;
+  const dlcmd = `${cmd} --no-progress --output "${basename}.%(ext)s" -- "${url}"`;
+  const [code, msg] = await run(dlcmd);
+  log.info(`download result: ${code} - ${msg}`);
+  return code == 0;
 };
 
 function getData() {
@@ -81,7 +77,7 @@ async function download(database: firebase.database.Database) {
     }
     log.info(`downloading: ${v.title}`);
     try {
-      const dlResult = await execDl(v.url);
+      const dlResult = await execDl(v.title, v.url);
       log.info(`execDl success: ${dlResult}`);
       try {
         if (DRY_RUN) return true;
@@ -102,8 +98,7 @@ async function download(database: firebase.database.Database) {
   return result;
 }
 
-/**   main procedure
- */
+/** main procedure */
 async function main() {
   log.info('starting application ...');
   if (!processArguments()) exit(1);

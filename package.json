@@ -30,7 +30,7 @@
     "url": "git+https://github.com/tshm/videodl.git"
   },
   "scripts": {
-    "exec": "ts-node ./src/index.ts | yarn pino-pretty -t -c",
+    "start": "ts-node ./src/index.ts . | yarn pino-pretty -t -c",
     "test": "env DRY_RUN=true ts-node ./src/index.ts . | yarn pino-pretty -t -c",
     "lint": "eslint ./src/*.ts && prettier --check ./src/*.ts",
     "tsc": "tsc"
