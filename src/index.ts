@@ -34,19 +34,21 @@ const run = (cmd: string) =>
   });
 
 /** sanitize filename */
-const getSafeBasename = (basename: string) =>
-  sanitize(
-    Buffer.byteLength(basename, 'utf8') > 200
-      ? basename.substring(0, 50)
-      : basename
+const getSafeBasename = (basename: string) => {
+  const str = basename.replace(/%/g, '％');
+  return sanitize(
+    Buffer.byteLength(str, 'utf8') > 200
+      ? str.substring(0, 50)
+      : str
   );
+}
 
 const execDl = async (title: string, url: string) => {
   log.info('calling ytdl');
   const cmd = 'youtube-dl';
   const basename = getSafeBasename(title);
   if (DRY_RUN) {
-    log.warn('DRYRUN: basename: ', basename);
+    log.warn(`DRYRUN: basename:\n-> ${basename}`);
     return true;
   }
   const dlcmd = `${cmd} --no-progress --output "${basename}.%(ext)s" -- "${url}"`;
