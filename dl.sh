@@ -4,7 +4,7 @@ export NVM_DIR="$HOME/.nvm"
 
 PATH=$PATH:~/bin/
 WD=$(pwd)
-nvm use 10
+nvm use default
 
 cd $(dirname $0)
 source env.sh
