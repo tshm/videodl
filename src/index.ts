@@ -26,10 +26,10 @@ const run = (cmd: string) =>
     const ret = exec(cmd);
     if (ret.code === 0) {
       log.info(`running ${cmd} succeed`);
-      resolve([ret.code, ret.stdout]);
+      resolve([ret.code, ret.stdout + ret.stderr]);
     } else {
       log.error(`running ${cmd} failed`);
-      reject([ret.code, ret.stdout]);
+      reject([ret.code, ret.stdout + ret.stderr]);
     }
   });
 
@@ -89,6 +89,7 @@ async function download(database: firebase.database.Database) {
         return false;
       }
     } catch (e) {
+      await database.ref(`videos/${k}/error`).set(`${e}`);
       log.error(`videodl: download failed... ${v.title} (${e})`);
       return false;
     }
