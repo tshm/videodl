@@ -16,7 +16,7 @@ function processArguments() {
     cd(proc.argv[2]);
     return true;
   }
-  log.error('need folder path');
+  log.error('need folder path as an argument');
   return false;
 }
 
@@ -37,11 +37,9 @@ const run = (cmd: string) =>
 const getSafeBasename = (basename: string) => {
   const str = basename.replace(/%/g, '％');
   return sanitize(
-    Buffer.byteLength(str, 'utf8') > 200
-      ? str.substring(0, 50)
-      : str
+    Buffer.byteLength(str, 'utf8') > 200 ? str.substring(0, 50) : str
   );
-}
+};
 
 const execDl = async (title: string, url: string) => {
   log.info('calling ytdl');
@@ -70,7 +68,7 @@ async function download(database: firebase.database.Database) {
     log.info('empty list');
     return false;
   }
-  const jobs = Object.keys(obj).map((k) => async () => {
+  const promises = Object.keys(obj).map(async (k) => {
     const v = obj[k];
     if (v.watched) {
       log.info(`deleting pre-marked item: ${v.title}`);
@@ -95,8 +93,8 @@ async function download(database: firebase.database.Database) {
     }
   });
   let result = true;
-  for (const job of jobs) {
-    result = result && (await job());
+  for (const task of promises) {
+    result = result && (await task);
   }
   return result;
 }
@@ -111,7 +109,7 @@ async function main() {
     log.info(`exiting: ${v}`);
     exit(0);
   } catch (e) {
-    log.error(`some failed: ${e}`);
+    log.error(`caught exception. exiting: ${e}`);
     exit(1);
   }
 }

@@ -14,6 +14,7 @@
     "shelljs": "^0.8.3"
   },
   "devDependencies": {
+    "@types/pino": "^6.3.2",
     "@types/shelljs": "^0.8.5",
     "@typescript-eslint/eslint-plugin": "^4.2.0",
     "@typescript-eslint/parser": "^4.2.0",
@@ -33,7 +34,7 @@
     "start": "ts-node ./src/index.ts . | yarn pino-pretty -t -c",
     "test": "env DRY_RUN=true ts-node ./src/index.ts . | yarn pino-pretty -t -c",
     "lint": "eslint ./src/*.ts && prettier --check ./src/*.ts",
-    "tsc": "tsc"
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC"
