@@ -20,16 +20,22 @@ function processArguments() {
   return false;
 }
 
+type runResult = {
+  code: number;
+  msg: string;
+};
+
 /** run external command */
 const run = (cmd: string) =>
-  new Promise<[number, string]>((resolve, reject) => {
+  new Promise<runResult>((resolve, reject) => {
     const ret = exec(cmd);
+    const result = { code: ret.code, msg: ret.stdout + ret.stderr };
     if (ret.code === 0) {
-      log.info(`running ${cmd} succeed`);
-      resolve([ret.code, ret.stdout + ret.stderr]);
+      log.info(`running ${cmd} succeed: ${result}`);
+      resolve(result);
     } else {
-      log.error(`running ${cmd} failed`);
-      reject([ret.code, ret.stdout + ret.stderr]);
+      log.error(`running ${cmd} failed: ${result}`);
+      reject(result);
     }
   });
 
@@ -50,7 +56,7 @@ const execDl = async (title: string, url: string) => {
     return true;
   }
   const dlcmd = `${cmd} --no-progress --output "${basename}.%(ext)s" -- "${url}"`;
-  const [code, msg] = await run(dlcmd);
+  const { code, msg } = await run(dlcmd);
   log.info(`download result: ${code} - ${msg}`);
   return code == 0;
 };
@@ -63,14 +69,17 @@ function getData() {
 
 async function download(database: firebase.database.Database) {
   const snapshot = await database.ref('videos').once('value');
-  const obj = snapshot.val();
+  const obj: Object = snapshot.val();
   if (!obj) {
     log.info('empty list');
     return false;
   }
-  const promises = Object.keys(obj).map(async (k) => {
-    const v = obj[k];
-    if (v.watched) {
+  const promises = Object.entries(obj).map(async ([k, v]) => {
+    if (v?.error) {
+      log.warn('skip errored entries');
+      return true;
+    }
+    if (v?.watched === true) {
       log.info(`deleting pre-marked item: ${v.title}`);
       await database.ref(`videos/${k}`).remove();
       return true;
@@ -79,13 +88,9 @@ async function download(database: firebase.database.Database) {
     try {
       const dlResult = await execDl(v.title, v.url);
       log.info(`execDl success: ${dlResult}`);
-      try {
-        if (DRY_RUN) return true;
-        await database.ref(`videos/${k}/watched`).set(true);
-        return true;
-      } catch (e) {
-        return false;
-      }
+      if (DRY_RUN) return true;
+      await database.ref(`videos/${k}/watched`).set(true);
+      return true;
     } catch (e) {
       await database.ref(`videos/${k}/error`).set(`${e}`);
       log.error(`videodl: download failed... ${v.title} (${e})`);

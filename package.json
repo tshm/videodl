@@ -34,6 +34,7 @@
     "start": "ts-node ./src/index.ts . | yarn pino-pretty -t -c",
     "test": "env DRY_RUN=true ts-node ./src/index.ts . | yarn pino-pretty -t -c",
     "lint": "eslint ./src/*.ts && prettier --check ./src/*.ts",
+    "prebuild": "yarn lint",
     "build": "tsc"
   },
   "author": "",
