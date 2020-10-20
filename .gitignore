@@ -8,3 +8,4 @@ yarn-error.log
 env.sh
 .vscode/settings.json
 .*.txt
+.env
