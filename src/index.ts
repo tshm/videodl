@@ -1,6 +1,6 @@
 import { cd, exit, exec } from 'shelljs';
 import * as pino from 'pino';
-import * as firebase from 'firebase';
+import firebase from 'firebase';
 import * as proc from 'process';
 import * as path from 'path';
 import sanitize = require('sanitize-filename');
