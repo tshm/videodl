@@ -92,8 +92,8 @@ async function download(database: firebase.database.Database) {
       await database.ref(`videos/${k}/watched`).set(true);
       return true;
     } catch (e) {
-      await database.ref(`videos/${k}/error`).set(`${e}`);
-      log.error(`videodl: download failed... ${v.title} (${e})`);
+      await database.ref(`videos/${k}/error`).set(`${e.msg}`);
+      log.error(`videodl: download failed... ${v.title} (${e.msg})`);
       return false;
     }
   });
