@@ -31,10 +31,10 @@ const run = (cmd: string) =>
     const ret = exec(cmd);
     const result = { code: ret.code, msg: ret.stdout + ret.stderr };
     if (ret.code === 0) {
-      log.info(`running ${cmd} succeed: ${result}`);
+      log.info(`running ${cmd} succeed: ${result.msg}`);
       resolve(result);
     } else {
-      log.error(`running ${cmd} failed: ${result}`);
+      log.error(`running ${cmd} failed: ${result.msg}`);
       reject(result);
     }
   });
@@ -48,7 +48,7 @@ const getSafeBasename = (basename: string) => {
 };
 
 const execDl = async (title: string, url: string) => {
-  log.info('calling ytdl');
+  log.info('calling ytdl', url);
   const cmd = 'youtube-dl';
   const basename = getSafeBasename(title);
   if (DRY_RUN) {
@@ -57,7 +57,7 @@ const execDl = async (title: string, url: string) => {
   }
   const dlcmd = `${cmd} --no-progress --output "${basename}.%(ext)s" -- "${url}"`;
   const { code, msg } = await run(dlcmd);
-  log.info(`download result: ${code} - ${msg}`);
+  log.info(`download result ${url}: ${code} - ${msg}`);
   return code == 0;
 };
 
@@ -87,7 +87,6 @@ async function download(database: firebase.database.Database) {
     log.info(`downloading: ${v.title}`);
     try {
       const dlResult = await execDl(v.title, v.url);
-      log.info(`execDl success: ${dlResult}`);
       if (DRY_RUN) return true;
       await database.ref(`videos/${k}/watched`).set(true);
       return true;
