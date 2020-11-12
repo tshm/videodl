@@ -7,4 +7,3 @@ source .env
 
 node dist/index.js $WD | yarn pino-elasticsearch --node $LOG
 
-youtube-dl -U
