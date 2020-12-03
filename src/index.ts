@@ -1,9 +1,11 @@
+import { config } from 'dotenv';
 import { cd, exit, exec } from 'shelljs';
 import * as pino from 'pino';
 import firebase from 'firebase';
 import * as proc from 'process';
-import * as path from 'path';
 import sanitize = require('sanitize-filename');
+
+config({ path: `${__dirname}/../.env` });
 
 const log = pino();
 const DRY_RUN = process.env.DRY_RUN || false;
@@ -62,7 +64,13 @@ const execDl = async (title: string, url: string) => {
 };
 
 function getData() {
-  const config = require(path.resolve(__dirname, '../account.json'));
+  const config = {
+    apiKey: process.env.apiKey,
+    authDomain: process.env.authDomain,
+    databaseURL: process.env.databaseURL,
+    storageBucket: process.env.storageBucket,
+  };
+  if (DRY_RUN) log.debug(config);
   const app = firebase.initializeApp(config);
   return app.database();
 }
@@ -74,7 +82,7 @@ async function download(database: firebase.database.Database) {
     log.info('empty list');
     return false;
   }
-  const promises = Object.entries(obj).map(async ([k, v]) => {
+  const tasks = Object.entries(obj).map(async ([k, v]) => {
     if (v?.error) {
       log.warn('skip errored entries');
       return true;
@@ -96,11 +104,10 @@ async function download(database: firebase.database.Database) {
       return false;
     }
   });
-  let result = true;
-  for (const task of promises) {
-    result = result && (await task);
-  }
-  return result;
+  return tasks.reduce(
+    async (acc, x) => (await acc) && (await x),
+    Promise.resolve(true)
+  );
 }
 
 /** main procedure */
