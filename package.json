@@ -22,7 +22,7 @@
     "eslint": "^7.10.0",
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "pino-pretty": "^4.3.0",
+    "pino-dev": "^1.0.4",
     "prettier": "^2.1.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
@@ -32,8 +32,8 @@
     "url": "git+https://github.com/tshm/videodl.git"
   },
   "scripts": {
-    "start": "ts-node ./src/index.ts . | pino-pretty",
-    "test": "env DRY_RUN=true ts-node ./src/index.ts . | pino-pretty",
+    "start": "ts-node ./src/index.ts . | pino-dev",
+    "test": "env DRY_RUN=true ts-node ./src/index.ts . | pino-dev",
     "lint": "eslint ./src/*.ts && prettier --check ./src/*.ts",
     "prebuild": "yarn lint",
     "build": "tsc"
