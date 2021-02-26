@@ -3,7 +3,7 @@ module.exports = {
     node: true,
     es6: true,
   },
-  extends: ['plugin:prettier/recommended', 'prettier/@typescript-eslint'],
+  extends: ['plugin:prettier/recommended', 'prettier'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
