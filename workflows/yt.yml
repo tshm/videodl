@@ -1,0 +1,32 @@
+on:
+  youtube:
+    playlist_id: ${{ secrets.PLAYLISTID }}
+    config:
+      shouldDeduplicate: true
+jobs:
+  print:
+    name: Print
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Outputs
+        env:
+          title: ${{on.youtube.outputs.title}}
+          description: ${{on.youtube.outputs.description}}
+          link: ${{on.youtube.outputs.link}}
+        run: |
+          echo title: $title
+          echo description: $description
+          echo link: $link
+      - name: post to firebase
+        uses: actionsflow/axios@v1
+        with:
+          url: ${{secrets.URL}}
+          method: 'POST'
+          content-type: 'application/json'
+          timeout: 10000
+          data: |
+            {
+              "url": "<<<${{on.youtube.outputs.link}}>>>",
+              "title": "<<<${{on.youtube.outputs.title}}>>>",
+              "mark": "actionsflow"
+            }

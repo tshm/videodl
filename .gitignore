@@ -9,3 +9,6 @@ env.sh
 .vscode/settings.json
 .*.txt
 .env
+.actionsflow
+.secrets
+tmp

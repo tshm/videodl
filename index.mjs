@@ -1,11 +1,14 @@
-import { config } from 'dotenv';
-import { cd, exit, exec } from 'shelljs';
-import * as pino from 'pino';
+//@ts-check
+import dotenv from 'dotenv';
+import sh from 'shelljs';
+import pino from 'pino';
 import firebase from 'firebase';
-import * as proc from 'process';
-import sanitize = require('sanitize-filename');
+import proc from 'process';
+import sanitize from 'sanitize-filename';
+import path from 'path';
 
-config({ path: `${__dirname}/../.env` });
+const { cd, exec, exit } = sh;
+dotenv.config({ path: `${path.resolve()}/../.env` });
 
 const log = pino();
 const DRY_RUN = process.env.DRY_RUN || false;
@@ -22,14 +25,9 @@ function processArguments() {
   return false;
 }
 
-type runResult = {
-  code: number;
-  msg: string;
-};
-
 /** run external command */
-const run = (cmd: string) =>
-  new Promise<runResult>((resolve, reject) => {
+const run = (/** @type {string} */ cmd) =>
+  new Promise((resolve, reject) => {
     const ret = exec(cmd);
     const result = { code: ret.code, msg: ret.stdout + ret.stderr };
     if (ret.code === 0) {
@@ -42,14 +40,17 @@ const run = (cmd: string) =>
   });
 
 /** sanitize filename */
-const getSafeBasename = (basename: string) => {
+const getSafeBasename = (/** @type {string} */ basename) => {
   const str = basename.replace(/%/g, '％');
   return sanitize(
     Buffer.byteLength(str, 'utf8') > 200 ? str.substring(0, 50) : str
   );
 };
 
-const execDl = async (title: string, url: string) => {
+const execDl = async (
+  /** @type {string} */ title,
+  /** @type {string} */ url
+) => {
   log.info('calling ytdl', url);
   const cmd = 'youtube-dl';
   const basename = getSafeBasename(title);
@@ -75,9 +76,12 @@ function getData() {
   return app.database();
 }
 
-async function download(database: firebase.database.Database) {
+/**
+ * @param {firebase.database.Database} database
+ */
+async function download(database) {
   const snapshot = await database.ref('videos').once('value');
-  const obj: Object = snapshot.val();
+  const obj = snapshot.val();
   if (!obj) {
     log.info('empty list');
     return false;
@@ -95,6 +99,7 @@ async function download(database: firebase.database.Database) {
     log.info(`downloading: ${v.title}`);
     try {
       const dlResult = await execDl(v.title, v.url);
+      log.debug({ dlResult });
       if (DRY_RUN) return true;
       await database.ref(`videos/${k}/watched`).set(true);
       return true;

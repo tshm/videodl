@@ -2,7 +2,7 @@
   "name": "videodl",
   "version": "0.0.2",
   "description": "videodl connector",
-  "main": "./dist/index.js",
+  "main": "index.mjs",
   "prettier": {
     "singleQuote": true
   },
@@ -17,26 +17,23 @@
   "devDependencies": {
     "@types/pino": "^6.3.2",
     "@types/shelljs": "^0.8.5",
-    "@typescript-eslint/eslint-plugin": "^4.2.0",
-    "@typescript-eslint/parser": "^4.2.0",
-    "eslint": "^7.10.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "firebase": "^4.3.0",
     "pino-dev": "^1.0.4",
     "prettier": "^2.1.2",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.0.3"
+    "shelljs": "^0.7.7"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tshm/videodl.git"
   },
   "scripts": {
-    "start": "ts-node ./src/index.ts . | pino-dev",
-    "test": "env DRY_RUN=true ts-node ./src/index.ts . | pino-dev",
-    "lint": "eslint ./src/*.ts && prettier --check ./src/*.ts",
-    "prebuild": "yarn lint",
-    "build": "tsc"
+    "run": "node index.mjs . | pino-dev",
+    "test": "env DRY_RUN=true node index.mjs . | pino-dev",
+    "build": "actionsflow build",
+    "start": "actionsflow start",
+    "watch": "actionsflow start -w",
+    "act": "act --workflows ./dist/workflows --secret-file ./dist/.secrets --eventpath ./dist/event.json --env-file ./dist/.env -P ubuntu-latest=actionsflow/act-environment:v1 -P ubuntu-18.04=actionsflow/act-environment:v1",
+    "clean": "actionsflow clean"
   },
   "author": "",
   "license": "ISC"

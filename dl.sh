@@ -5,6 +5,6 @@ WD=$(pwd)
 cd $(dirname $0)
 source .env
 
-node dist/index.js $WD | yarn pino-elasticsearch --node $LOG
+node index.mjs $WD | yarn pino-elasticsearch --node $LOG
 youtube-dl -U
 
