@@ -48,8 +48,7 @@ const getSafeBasename = (/** @type {string} */ basename) => {
 };
 
 const execDl = async (
-  /** @type {string} */ title,
-  /** @type {string} */ url
+  /** @type {{title: string, url: string}}*/ { title, url }
 ) => {
   log.info('calling ytdl', url);
   const cmd = 'youtube-dl';
@@ -64,64 +63,68 @@ const execDl = async (
   return code == 0;
 };
 
-function getData() {
-  const config = {
-    apiKey: process.env.apiKey,
-    authDomain: process.env.authDomain,
-    databaseURL: process.env.databaseURL,
-    storageBucket: process.env.storageBucket,
-  };
-  if (DRY_RUN) log.debug(config);
-  const app = firebase.initializeApp(config);
-  return app.database();
-}
+const VideoDb = (/** @type {pino.Logger} */ log) => ({
+  getDatabase() {
+    const config = {
+      apiKey: process.env.apiKey,
+      authDomain: process.env.authDomain,
+      databaseURL: process.env.databaseURL,
+      storageBucket: process.env.storageBucket,
+    };
+    if (DRY_RUN) log.debug(config);
+    const app = firebase.initializeApp(config);
+    return app.database();
+  },
 
-/**
- * @param {firebase.database.Database} database
- */
-async function download(database) {
-  const snapshot = await database.ref('videos').once('value');
-  const obj = snapshot.val();
-  if (!obj) {
-    log.info('empty list');
-    return false;
-  }
-  const tasks = Object.entries(obj).map(async ([k, v]) => {
-    if (v?.error) {
-      log.warn('skip errored entries');
-      return true;
-    }
-    if (v?.watched === true) {
-      log.info(`deleting pre-marked item: ${v.title}`);
-      await database.ref(`videos/${k}`).remove();
-      return true;
-    }
-    log.info(`downloading: ${v.title}`);
-    try {
-      const dlResult = await execDl(v.title, v.url);
-      log.debug({ dlResult });
-      if (DRY_RUN) return true;
-      await database.ref(`videos/${k}/watched`).set(true);
-      return true;
-    } catch (e) {
-      await database.ref(`videos/${k}/error`).set(`${e.msg}`);
-      log.error(`videodl: download failed... ${v.title} (${e.msg})`);
+  async forEach(
+    /** @type {(arg : {title: string, url: string}) => Promise<boolean>} */
+    action
+  ) {
+    const database = this.getDatabase();
+    const snapshot = await database.ref('videos').once('value');
+    /** @type {Object.<string, { title: string, url: string, error: string?, watched: boolean?}>}} */
+    const obj = snapshot.val();
+    if (!obj) {
+      log.info('empty list');
       return false;
     }
-  });
-  return tasks.reduce(
-    async (acc, x) => (await acc) && (await x),
-    Promise.resolve(true)
-  );
-}
+    const tasks = Object.entries(obj)
+      .filter(([_, { url, error }]) => !!url && !error)
+      .map(([key, values]) => ({
+        values,
+        record: database.ref(`/videos/${key}`),
+      }))
+      .map(async ({ values: { title, url, watched }, record }) => {
+        try {
+          if (watched === true) {
+            log.info(`deleting pre-marked item: ${title}`);
+            await record.remove();
+            return true;
+          }
+          await action({ title, url });
+          if (DRY_RUN) return true;
+          await record.child('watched').set(true);
+          return true;
+        } catch (e) {
+          await record.child(`error`).set(`${e.msg}`);
+          log.error(`videodl: download failed... ${title} (${e.msg})`);
+          return false;
+        }
+      });
+    return tasks.reduce(
+      async (acc, x) => (await acc) && (await x),
+      Promise.resolve(true)
+    );
+  },
+});
 
 /** main procedure */
 async function main() {
   log.info('starting application ...');
   if (!processArguments()) exit(1);
-  const database = getData();
   try {
-    const v = await download(database);
+    const db = VideoDb(log);
+    const v = await db.forEach(execDl);
     log.info(`exiting: ${v}`);
     exit(0);
   } catch (e) {
