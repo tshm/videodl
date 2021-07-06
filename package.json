@@ -7,10 +7,10 @@
     "singleQuote": true
   },
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "dotenv": "^10.0.0",
     "firebase": "^8.0.0",
     "pino": "^6.6.1",
-    "pino-elasticsearch": "^5.3.0",
+    "pino-elasticsearch": "^6.1.0",
     "sanitize-filename": "^1.6.3",
     "shelljs": "^0.8.3"
   },
