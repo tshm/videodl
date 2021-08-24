@@ -71,7 +71,7 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
       databaseURL: process.env.databaseURL,
       storageBucket: process.env.storageBucket,
     };
-    if (DRY_RUN) log.debug(config);
+    if (DRY_RUN) log.debug('config: %o', config);
     const app = firebase.initializeApp(config);
     return app.database();
   },
