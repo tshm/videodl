@@ -9,13 +9,13 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "firebase": "^8.0.0",
-    "pino": "^6.13.2",
-    "pino-elasticsearch": "^6.1.0",
+    "pino": "^7.1.0",
+    "pino-elasticsearch": "^6.2.0",
     "sanitize-filename": "^1.6.3",
     "shelljs": "^0.8.3"
   },
   "devDependencies": {
-    "@types/pino": "^6.3.2",
+    "@types/pino": "^6.3.12",
     "@types/shelljs": "^0.8.5",
     "pino-dev": "^1.0.4",
     "prettier": "^2.4.0"
