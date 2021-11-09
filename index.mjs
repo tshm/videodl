@@ -1,5 +1,4 @@
 //@ts-check
-import dotenv from 'dotenv';
 import sh from 'shelljs';
 import pino from 'pino';
 import firebase from 'firebase';
@@ -8,7 +7,6 @@ import sanitize from 'sanitize-filename';
 import path from 'path';
 
 const { cd, exec, exit } = sh;
-dotenv.config({ path: `${path.resolve()}/.env` });
 
 const log = pino();
 const DRY_RUN = process.env.DRY_RUN || false;

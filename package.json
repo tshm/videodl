@@ -27,6 +27,7 @@
   "scripts": {
     "run": "node index.mjs . | pino-dev",
     "test": "env DRY_RUN=true node index.mjs . | pino-dev",
+    "docker": "docker build -t videodl -t videodl:$(jq -r .version package.json)-$(git rev-parse --short HEAD) .",
     "build": "actionsflow build",
     "start": "actionsflow start",
     "watch": "actionsflow start -w",
