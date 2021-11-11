@@ -1,12 +1,19 @@
 FROM node:16-alpine
-ENV APP_ROOT /app/
-ENV PATH $PATH:$APP_ROOT/bin
-ENV CONF /root/.config/yt-dlp
+RUN apk add --no-cache python3 ffmpeg
 
-WORKDIR $APP_ROOT
+ARG UNAME=node
+# ARG UID=1000
+# ARG GID=1000
+# RUN grep :$GID: /etc/group || addgroup -g $GID $UNAME
+# RUN adduser -D -u $UID -G $UNAME $UNAME
 
-RUN apk add --no-cache python3 && \
-  mkdir -p bin $CONF &&\
+ENV HOME /home/$UNAME
+ENV PATH $PATH:$HOME/bin
+ENV CONF $HOME/.config/yt-dlp
+
+USER $UNAME
+WORKDIR $HOME
+RUN mkdir -p bin $CONF &&\
   wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O bin/youtube-dl && \
   chmod a+x bin/youtube-dl
 
