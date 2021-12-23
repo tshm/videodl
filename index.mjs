@@ -1,10 +1,10 @@
 //@ts-check
 import sh from 'shelljs';
 import pino from 'pino';
-import firebase from 'firebase';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
 import proc from 'process';
 import sanitize from 'sanitize-filename';
-import path from 'path';
 
 const { cd, exec, exit } = sh;
 
@@ -70,8 +70,8 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
       storageBucket: process.env.storageBucket,
     };
     if (DRY_RUN) log.debug('config: %o', config);
-    const app = firebase.initializeApp(config);
-    return app.database();
+    const app = initializeApp(config);
+    return getDatabase(app);
   },
 
   async forEach(
@@ -79,7 +79,7 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
     action
   ) {
     const database = this.getDatabase();
-    const snapshot = await database.ref('videos').once('value');
+    const snapshot = await get(child(ref(database), 'videos'));
     /** @type {Object.<string, { title: string, url: string, error: string?, watched: boolean?}>}} */
     const obj = snapshot.val();
     if (!obj) {
@@ -90,21 +90,21 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
       .filter(([_, { url, error }]) => !!url && !error)
       .map(([key, values]) => ({
         values,
-        record: database.ref(`/videos/${key}`),
+        record: ref(database, `/videos/${key}`),
       }))
       .map(async ({ values: { title, url, watched }, record }) => {
         try {
           if (watched === true) {
             log.info(`deleting pre-marked item: ${title}`);
-            await record.remove();
+            await remove(record);
             return true;
           }
           await action({ title, url });
           if (DRY_RUN) return true;
-          await record.child('watched').set(true);
+          await set(child(record, 'watched'), true);
           return true;
         } catch (e) {
-          await record.child(`error`).set(`${e.msg}`);
+          await set(child(record, `error`), `${e.msg}`);
           log.error(`videodl: download failed... ${title} (${e.msg})`);
           return false;
         }
