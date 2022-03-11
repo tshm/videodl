@@ -26,7 +26,7 @@ function processArguments() {
 /** run external command */
 const run = (/** @type {string} */ cmd) =>
   new Promise((resolve, reject) => {
-    const ret = exec(cmd);
+    const ret = exec(cmd, { silent: true });
     const result = { code: ret.code, msg: ret.stdout + ret.stderr };
     if (ret.code === 0) {
       log.info(`running ${cmd} succeed: ${result.msg}`);
