@@ -7,8 +7,8 @@
     "singleQuote": true
   },
   "dependencies": {
-    "firebase": "^9.6.6",
-    "pino": "^7.7.0",
+    "firebase": "^9.6.8",
+    "pino": "^7.8.1",
     "pino-elasticsearch": "^6.2.0",
     "sanitize-filename": "^1.6.3",
     "shelljs": "^0.8.5"
