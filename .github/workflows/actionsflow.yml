@@ -2,9 +2,6 @@ name: Actionsflow
 on:
   schedule:
     - cron: "8 * * * *"
-  push:
-    branches:
-      - main
   repository_dispatch:
   workflow_dispatch:
     inputs:

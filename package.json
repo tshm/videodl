@@ -26,11 +26,11 @@
     "run": "node index.mjs . | pino-dev",
     "test": "env DRY_RUN=true node index.mjs . | pino-dev",
     "docker": "docker build -t videodl -t videodl:$(jq -r .version package.json)-$(git rev-parse --short HEAD) .",
-    "build": "actionsflow build",
-    "start": "actionsflow start",
-    "watch": "actionsflow start -w",
+    "build": "act build",
+    "start": "act start",
+    "watch": "act start -w",
     "act": "act --workflows ./dist/workflows --secret-file ./dist/.secrets --eventpath ./dist/event.json --env-file ./dist/.env -P ubuntu-latest=actionsflow/act-environment:v1 -P ubuntu-18.04=actionsflow/act-environment:v1",
-    "clean": "actionsflow clean"
+    "clean": "act clean"
   },
   "author": "",
   "license": "ISC"
