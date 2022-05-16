@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: $[{ secrets.DOCERHUB_USERNAME }]
+      DOCKER_TOKEN: $[{ secrets.DOCERHUB_TOKEN }]
+      FORCE_COLOR: 1
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup latest earthly
+      run: |
+        wget https://github.com/earthly/earthly/releases/download/v0.6.14/earthly-linux-amd64 -O ./earthly && \
+        chmod +x ./earthly && \
+        ./earthly bootstrap
+    - name: Earthly version
+      run: earthly --version
+    - name: Run build
+      run: earthly --ci --push +build
+

@@ -1,0 +1,12 @@
+node_modules/*
+
+.vscode
+.cookie.txt
+Dockerfile
+docker-compose.yml
+sample.env
+.env
+.envrc
+.git
+*.log
+tmp
