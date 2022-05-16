@@ -11,18 +11,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # DOCKER_USERNAME: $[{ secrets.DOCERHUB_USERNAME }]
-      # DOCKER_TOKEN: $[{ secrets.DOCERHUB_TOKEN }]
+      REGISTRY: ghcr.io
+      USERNAME: ${{ github.actor }}
+      PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       FORCE_COLOR: 1
+      IMAGE: ${{ github.actor }}/videodl
 
     steps:
+      - name: test
+        run: echo ${{env.REGISTRY}}/${{env.USERNAME}}/${{env.IMAGE}}
+      - uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.USERNAME }}
+          password: ${{ env.PASSWORD }}
       - uses: actions/checkout@v3
       - name: Setup latest earthly
         run: |
-          wget https://github.com/earthly/earthly/releases/download/v0.6.14/earthly-linux-amd64 -O ./earthly && \
+          wget -nv https://github.com/earthly/earthly/releases/download/v0.6.14/earthly-linux-amd64 -O ./earthly && \
           chmod +x ./earthly && \
           ./earthly bootstrap
       - name: Earthly version
         run: ./earthly --version
       - name: Run build
-        run: ./earthly --ci --push +build
+        run: |
+          ./earthly --ci --push \
+            --build-arg IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE }} \
+            +build

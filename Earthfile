@@ -5,11 +5,11 @@ RUN apk add --no-cache python3 ffmpeg && \
   npm install -g pnpm
 
 ARG UNAME=node
+ARG IMAGE
 
 ENV HOME /home/$UNAME
 ENV PATH $PATH:$HOME/bin
 ENV CONF $HOME/.config/yt-dlp
-ENV IMAGE ghcr.io/tshm/videodl
 
 USER $UNAME
 WORKDIR $HOME
@@ -25,4 +25,4 @@ build:
   COPY index.mjs .
   COPY .yt-dlp.conf $CONF/config
   CMD ["sh", "-c", "node index.mjs ./dl"]
-  SAVE IMAGE --push $IMAGE:latest
+  SAVE IMAGE --push $IMAGE
