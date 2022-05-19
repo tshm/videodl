@@ -2,6 +2,7 @@
 WD=$(pwd)
 cd $(dirname $0)
 
+export VECTOR_LOG_FORMAT=json
 export $(cat .env | xargs)
 
 docker run --rm --env-file .env -v $WD:/home/node/dl videodl |\
