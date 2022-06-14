@@ -13,3 +13,4 @@ env.sh
 .secrets
 tmp
 .vector.toml
+.vector.yaml
