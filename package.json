@@ -7,15 +7,16 @@
     "singleQuote": true
   },
   "dependencies": {
-    "firebase": "^9.9.1",
-    "pino": "^7.11.0",
+    "firebase": "^9.14.0",
+    "pino": "^8.7.0",
+    "pnpm": "^7.17.0",
     "sanitize-filename": "^1.6.3",
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
     "@types/shelljs": "^0.8.11",
-    "pino-dev": "^2.0.13",
-    "prettier": "^2.7.1"
+    "pino-dev": "^4.0.0",
+    "prettier": "^2.8.0"
   },
   "repository": {
     "type": "git",
