@@ -1,0 +1,7 @@
+{
+"rules": {
+  "videos": {
+    ".read": "auth !== null",
+    ".write": "auth !== null"
+  }
+}

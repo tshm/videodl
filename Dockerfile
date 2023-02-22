@@ -23,4 +23,4 @@ RUN pnpm install --prod --frozen-lockfile
 
 COPY index.mjs .
 COPY .yt-dlp.conf $CONF/config
-CMD ["sh", "-c", "node index.mjs ./dl"]
+CMD ["sh", "-c", "youtube-dl -U && node index.mjs ./dl"]

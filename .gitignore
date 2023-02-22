@@ -16,3 +16,4 @@ tmp
 .vector.yaml
 .devenv*
 devenv.local.nix
+.serviceAccount.json
