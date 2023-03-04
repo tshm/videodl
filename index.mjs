@@ -13,6 +13,8 @@ const DRY_RUN = process.env.DRY_RUN || false;
 log.level = DRY_RUN ? 'debug' : 'info';
 if (DRY_RUN) log.debug('run as DRY_RUN');
 
+const LIMIT = process.env.LIMIT || 999;
+
 function processArguments() {
   if (proc.argv.length > 2) {
     log.info(`change dir to "${proc.argv[2]}"`);
@@ -48,7 +50,7 @@ const getSafeBasename = (/** @type {string} */ basename) => {
 const execDl = async (
   /** @type {{title: string, url: string}}*/ { title, url }
 ) => {
-  log.info('calling ytdl', url);
+  log.info('calling ytdl', title, url);
   const cmd = 'youtube-dl';
   const basename = getSafeBasename(title);
   if (DRY_RUN) {
@@ -62,7 +64,7 @@ const execDl = async (
 };
 
 const VideoDb = (/** @type {pino.Logger} */ log) => ({
-  getDatabase() {
+  getDatabaseInstance() {
     const config = {
       apiKey: process.env.apiKey,
       authDomain: process.env.authDomain,
@@ -78,7 +80,7 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
     /** @type {(arg : {title: string, url: string}) => Promise<boolean>} */
     action
   ) {
-    const database = this.getDatabase();
+    const database = this.getDatabaseInstance();
     const snapshot = await get(child(ref(database), 'videos'));
     /** @type {Object.<string, { title: string, url: string, error: string?, watched: boolean?}>}} */
     const obj = snapshot.val();
@@ -92,7 +94,8 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
         values,
         record: ref(database, `/videos/${key}`),
       }))
-      .map(async ({ values: { title, url, watched }, record }) => {
+      .map(async ({ values: { title, url, watched }, record }, ix) => {
+        if (ix > LIMIT) return true;
         try {
           if (watched === true) {
             log.info(`deleting pre-marked item: ${title}`);

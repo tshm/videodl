@@ -1,7 +1,8 @@
 {
   "packages": [
     "nodejs",
-    "nodePackages.pnpm"
+    "nodePackages.pnpm",
+    "vector"
   ],
   "shell": {
     "init_hook": null
