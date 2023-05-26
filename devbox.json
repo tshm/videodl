@@ -1,8 +1,7 @@
 {
   "packages": [
-    "nodejs",
-    "nodePackages.pnpm",
-    "vector"
+    "bun",
+    "yt-dlp-light@2023.3.4"
   ],
   "shell": {
     "init_hook": null

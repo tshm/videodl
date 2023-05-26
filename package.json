@@ -7,30 +7,18 @@
     "singleQuote": true
   },
   "dependencies": {
-    "firebase": "^9.17.2",
-    "pino": "^8.11.0",
-    "pnpm": "^7.28.0",
-    "sanitize-filename": "^1.6.3",
-    "shelljs": "^0.8.5"
+    "firebase": "^9.22.1",
+    "prettier": "^2.8.8",
+    "sanitize-filename": "^1.6.3"
   },
-  "devDependencies": {
-    "@types/shelljs": "^0.8.11",
-    "pino-dev": "^4.0.0",
-    "prettier": "^2.8.4"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tshm/videodl.git"
   },
   "scripts": {
-    "run": "node index.mjs . | pino-dev",
-    "test": "env DRY_RUN=true node index.mjs . | pino-dev",
-    "docker": "docker build -t videodl -t videodl:$(jq -r .version package.json)-$(git rev-parse --short HEAD) .",
-    "build": "act build",
-    "start": "act start",
-    "watch": "act start -w",
-    "act": "act --workflows ./dist/workflows --secret-file ./dist/.secrets --eventpath ./dist/event.json --env-file ./dist/.env -P ubuntu-latest=actionsflow/act-environment:v1 -P ubuntu-18.04=actionsflow/act-environment:v1",
-    "clean": "act clean"
+    "run": "bun run index.ts .",
+    "test": "env DRY_RUN=true bun run index.ts ."
   },
   "author": "",
   "license": "ISC"

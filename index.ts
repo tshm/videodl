@@ -1,24 +1,27 @@
-//@ts-check
-import sh from 'shelljs';
-import pino from 'pino';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
 import proc from 'process';
 import sanitize from 'sanitize-filename';
 
-const { cd, exec, exit } = sh;
-
-const log = pino();
+const log = {
+  level: 'debug',
+  debug: (txt: string) => console.debug(txt),
+  info: (txt: string) => console.info(txt),
+  error: (txt: string) => console.error(txt),
+  warn: (txt: string) => console.warn(txt),
+};
 const DRY_RUN = process.env.DRY_RUN || false;
 log.level = DRY_RUN ? 'debug' : 'info';
 if (DRY_RUN) log.debug('run as DRY_RUN');
 
-const LIMIT = process.env.LIMIT || 999;
+const CMD = [process.env.YTDLP || 'yt-dlp', '--config-locations', `${__dirname}/.yt-dlp.conf`];
+const LIMIT = +(process.env.LIMIT || 999);
+let PWD = '';
 
 function processArguments() {
   if (proc.argv.length > 2) {
     log.info(`change dir to "${proc.argv[2]}"`);
-    cd(proc.argv[2]);
+    PWD = proc.argv[2];
     return true;
   }
   log.error('need folder path as an argument');
@@ -26,21 +29,21 @@ function processArguments() {
 }
 
 /** run external command */
-const run = (/** @type {string} */ cmd) =>
+const run = (cmds: string[]): Promise<{ code: number, msg: string }> =>
   new Promise((resolve, reject) => {
-    const ret = exec(cmd, { silent: true });
-    const result = { code: ret.code, msg: ret.stdout + ret.stderr };
-    if (ret.code === 0) {
-      log.info(`running ${cmd} succeed: ${result.msg}`);
+    const ret = Bun.spawnSync(cmds, { cwd: PWD, env: process.env });
+    const result = { code: ret.success ? 0 : 1, msg: ret.stdout.toString() + ret.stderr.toString() };
+    if (ret.success) {
+      log.info(`running ${cmds} succeed: ${result.msg}`);
       resolve(result);
     } else {
-      log.error(`running ${cmd} failed: ${result.msg}`);
+      log.error(`running ${cmds} failed: ${result.msg}`);
       reject(result);
     }
   });
 
 /** sanitize filename */
-const getSafeBasename = (/** @type {string} */ basename) => {
+const getSafeBasename = (basename: string) => {
   const str = basename.replace(/%/g, '％');
   return sanitize(
     Buffer.byteLength(str, 'utf8') > 200 ? str.substring(0, 50) : str
@@ -48,22 +51,21 @@ const getSafeBasename = (/** @type {string} */ basename) => {
 };
 
 const execDl = async (
-  /** @type {{title: string, url: string}}*/ { title, url }
+   { title, url } : {title: string, url: string}
 ) => {
-  log.info('calling ytdl', title, url);
-  const cmd = 'youtube-dl';
+  log.info(`calling ytdl "${title}" (${url})`);
   const basename = getSafeBasename(title);
   if (DRY_RUN) {
-    log.warn(`DRYRUN: basename:\n-> ${basename}`);
+    log.warn(`DRYRUN: basename:\n-> "${basename}"`);
     return true;
   }
-  const dlcmd = `${cmd} --no-progress --output "${basename}.%(ext)s" -- "${url}"`;
+  const dlcmd = [ ...CMD, '--no-progress', '--output', `${basename}.%(ext)s`, '--', url ];
   const { code, msg } = await run(dlcmd);
   log.info(`download result ${url}: ${code} - ${msg}`);
-  return code == 0;
+  return code === 0;
 };
 
-const VideoDb = (/** @type {pino.Logger} */ log) => ({
+const VideoDb = () => ({
   getDatabaseInstance() {
     const config = {
       apiKey: process.env.apiKey,
@@ -71,19 +73,18 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
       databaseURL: process.env.databaseURL,
       storageBucket: process.env.storageBucket,
     };
-    if (DRY_RUN) log.debug('config: %o', config);
+    if (DRY_RUN) log.debug(`config: ${JSON.stringify(config)}`);
     const app = initializeApp(config);
     return getDatabase(app);
   },
 
   async forEach(
-    /** @type {(arg : {title: string, url: string}) => Promise<boolean>} */
-    action
+    action :(arg : {title: string, url: string}) => Promise<boolean>
   ) {
     const database = this.getDatabaseInstance();
     const snapshot = await get(child(ref(database), 'videos'));
-    /** @type {Object.<string, { title: string, url: string, error: string?, watched: boolean?}>}} */
-    const obj = snapshot.val();
+    const obj: Record<string, { title: string, url: string, error?: string, watched?: boolean }>
+      = snapshot.val();
     if (!obj) {
       log.info('empty list');
       return false;
@@ -122,17 +123,18 @@ const VideoDb = (/** @type {pino.Logger} */ log) => ({
 /** main procedure */
 async function main() {
   log.info('starting application ...');
-  if (!processArguments()) exit(1);
+  if (!processArguments()) return 1;
   try {
-    const db = VideoDb(log);
+    const db = VideoDb();
     const v = await db.forEach(execDl);
     log.info(`exiting: ${v}`);
-    exit(0);
+    return 0;
   } catch (e) {
     log.error(`caught exception. exiting: ${e}`);
-    exit(1);
+    return 1;
   }
 }
 
-main();
+const ret = await main();
 log.info('ending....');
+process.exit(ret);
