@@ -6,4 +6,4 @@ export PATH=${PATH}:.devbox/nix/profile/default/bin
 export VECTOR_LOG_FORMAT=json
 export $(cat .env | xargs)
 
-bun run run
+bun run index.ts ${WD}
