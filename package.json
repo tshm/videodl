@@ -7,6 +7,7 @@
     "singleQuote": true
   },
   "dependencies": {
+    "bun-types": "^0.6.4",
     "firebase": "^9.22.1",
     "prettier": "^2.8.8",
     "sanitize-filename": "^1.6.3"

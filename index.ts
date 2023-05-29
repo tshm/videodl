@@ -14,25 +14,34 @@ const DRY_RUN = process.env.DRY_RUN || false;
 log.level = DRY_RUN ? 'debug' : 'info';
 if (DRY_RUN) log.debug('run as DRY_RUN');
 
-const CMD = [process.env.YTDLP || 'yt-dlp', '--config-locations', `${__dirname}/.yt-dlp.conf`];
-const LIMIT = +(process.env.LIMIT || 999);
-let PWD = '';
+const LIMIT = +(process.env.LIMIT || 99);
 
 function processArguments() {
   if (proc.argv.length > 2) {
     log.info(`change dir to "${proc.argv[2]}"`);
-    PWD = proc.argv[2];
-    return true;
+    const cwd = proc.argv[2];
+    const cmd = [
+      process.env.YTDLP || 'yt-dlp',
+      '--config-locations',
+      `${cwd}/.yt-dlp.conf`,
+    ];
+    return { cmd, cwd };
   }
   log.error('need folder path as an argument');
-  return false;
+  return null;
 }
 
 /** run external command */
-const run = (cmds: string[]): Promise<{ code: number, msg: string }> =>
+const run = (
+  cmds: string[],
+  cwd: string
+): Promise<{ code: number; msg: string }> =>
   new Promise((resolve, reject) => {
-    const ret = Bun.spawnSync(cmds, { cwd: PWD, env: process.env });
-    const result = { code: ret.success ? 0 : 1, msg: ret.stdout.toString() + ret.stderr.toString() };
+    const ret = Bun.spawnSync(cmds, { cwd, env: process.env });
+    const result = {
+      code: ret.success ? 0 : 1,
+      msg: ret.stdout.toString() + ret.stderr.toString(),
+    };
     if (ret.success) {
       log.info(`running ${cmds} succeed: ${result.msg}`);
       resolve(result);
@@ -50,20 +59,27 @@ const getSafeBasename = (basename: string) => {
   );
 };
 
-const execDl = async (
-   { title, url } : {title: string, url: string}
-) => {
-  log.info(`calling ytdl "${title}" (${url})`);
-  const basename = getSafeBasename(title);
-  if (DRY_RUN) {
-    log.warn(`DRYRUN: basename:\n-> "${basename}"`);
-    return true;
-  }
-  const dlcmd = [ ...CMD, '--no-progress', '--output', `${basename}.%(ext)s`, '--', url ];
-  const { code, msg } = await run(dlcmd);
-  log.info(`download result ${url}: ${code} - ${msg}`);
-  return code === 0;
-};
+const execDl =
+  ({ cmd, cwd }: { cmd: string[]; cwd: string }) =>
+  async ({ title, url }: { title: string; url: string }) => {
+    log.info(`calling ytdl "${title}" (${url})`);
+    const basename = getSafeBasename(title);
+    if (DRY_RUN) {
+      log.warn(`DRYRUN: basename:\n-> "${basename}"`);
+      return true;
+    }
+    const dlcmd = [
+      ...cmd,
+      '--no-progress',
+      '--output',
+      `${basename}.%(ext)s`,
+      '--',
+      url,
+    ];
+    const { code, msg } = await run(dlcmd, cwd);
+    log.info(`download result ${url}: ${code} - ${msg}`);
+    return code === 0;
+  };
 
 const VideoDb = () => ({
   getDatabaseInstance() {
@@ -79,37 +95,39 @@ const VideoDb = () => ({
   },
 
   async forEach(
-    action :(arg : {title: string, url: string}) => Promise<boolean>
+    action: (arg: { title: string; url: string }) => Promise<boolean>
   ) {
     const database = this.getDatabaseInstance();
     const snapshot = await get(child(ref(database), 'videos'));
-    const obj: Record<string, { title: string, url: string, error?: string, watched?: boolean }>
-      = snapshot.val();
+    const obj: Record<
+      string,
+      { title: string; url: string; error?: string; watched?: boolean }
+    > = snapshot.val();
     if (!obj) {
       log.info('empty list');
       return false;
     }
     const tasks = Object.entries(obj)
+      .slice(0, LIMIT)
       .filter(([_, { url, error }]) => !!url && !error)
-      .map(([key, values]) => ({
-        values,
-        record: ref(database, `/videos/${key}`),
+      .map(([videoId, video]) => ({
+        video,
+        videoRef: ref(database, `/videos/${videoId}`),
       }))
-      .map(async ({ values: { title, url, watched }, record }, ix) => {
-        if (ix > LIMIT) return true;
+      .map(async ({ video: { title, url, watched }, videoRef }) => {
         try {
           if (watched === true) {
             log.info(`deleting pre-marked item: ${title}`);
-            await remove(record);
+            await remove(videoRef);
             return true;
           }
           await action({ title, url });
           if (DRY_RUN) return true;
-          await set(child(record, 'watched'), true);
+          await set(child(videoRef, 'watched'), true);
           return true;
         } catch (e) {
-          await set(child(record, `error`), `${e.msg}`);
-          log.error(`videodl: download failed... ${title} (${e.msg})`);
+          await set(child(videoRef, `error`), `${e}`);
+          log.error(`videodl: download failed... ${title} (${e})`);
           return false;
         }
       });
@@ -123,10 +141,11 @@ const VideoDb = () => ({
 /** main procedure */
 async function main() {
   log.info('starting application ...');
-  if (!processArguments()) return 1;
+  const args = processArguments();
+  if (!args) return 1;
   try {
     const db = VideoDb();
-    const v = await db.forEach(execDl);
+    const v = await db.forEach(execDl(args));
     log.info(`exiting: ${v}`);
     return 0;
   } catch (e) {
