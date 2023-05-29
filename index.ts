@@ -31,23 +31,25 @@ function processArguments() {
   return null;
 }
 
+type RunResult = {
+  success: boolean;
+  msg: string;
+};
+
 /** run external command */
-const run = (
-  cmds: string[],
-  cwd: string
-): Promise<{ code: number; msg: string }> =>
+const run = (cmds: string[], cwd: string): Promise<RunResult> =>
   new Promise((resolve, reject) => {
     const ret = Bun.spawnSync(cmds, { cwd, env: process.env });
     const result = {
-      code: ret.success ? 0 : 1,
+      success: ret.success,
       msg: ret.stdout.toString() + ret.stderr.toString(),
     };
     if (ret.success) {
-      log.info(`running ${cmds} succeed: ${result.msg}`);
+      log.info(`running ${cmds} success ${result.msg}`);
       resolve(result);
     } else {
-      log.error(`running ${cmds} failed: ${result.msg}`);
-      reject(result);
+      log.error(`running ${cmds} failed ${result.msg}`);
+      reject(result.msg);
     }
   });
 
@@ -76,9 +78,9 @@ const execDl =
       '--',
       url,
     ];
-    const { code, msg } = await run(dlcmd, cwd);
-    log.info(`download result ${url}: ${code} - ${msg}`);
-    return code === 0;
+    const { success, msg } = await run(dlcmd, cwd);
+    log.info(`download result ${url}: ${success} - ${msg}`);
+    return success;
   };
 
 const VideoDb = () => ({
@@ -126,8 +128,9 @@ const VideoDb = () => ({
           await set(child(videoRef, 'watched'), true);
           return true;
         } catch (e) {
-          await set(child(videoRef, `error`), `${e}`);
-          log.error(`videodl: download failed... ${title} (${e})`);
+          var msg = typeof e === 'string' ? e : JSON.stringify(e);
+          await set(child(videoRef, `error`), `${msg}`);
+          log.error(`videodl: download failed... ${title} (${msg})`);
           return false;
         }
       });
