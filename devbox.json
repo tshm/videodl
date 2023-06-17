@@ -1,11 +1,9 @@
 {
   "packages": [
-    "bun",
-    "yt-dlp-light@2023.3.4"
+    "yt-dlp-light@2023.3.4",
+    "bun@0.5.9"
   ],
-  "shell": {
-    "init_hook": null
-  },
+  "shell": {},
   "nixpkgs": {
     "commit": "f80ac848e3d6f0c12c52758c0f25c10c97ca3b62"
   }
