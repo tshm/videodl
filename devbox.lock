@@ -6,6 +6,11 @@
       "resolved": "github:NixOS/nixpkgs/8670e496ffd093b60e74e7fa53526aa5920d09eb#bun",
       "version": "0.5.9"
     },
+    "vector@0.29.1": {
+      "last_modified": "2023-05-01T16:53:22Z",
+      "resolved": "github:NixOS/nixpkgs/8670e496ffd093b60e74e7fa53526aa5920d09eb#vector",
+      "version": "0.29.1"
+    },
     "yt-dlp-light@2023.3.4": {
       "last_modified": "2023-05-01T16:53:22Z",
       "resolved": "github:NixOS/nixpkgs/8670e496ffd093b60e74e7fa53526aa5920d09eb#yt-dlp-light",
