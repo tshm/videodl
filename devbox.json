@@ -1,8 +1,8 @@
 {
   "packages": [
-    "yt-dlp-light@2023.3.4",
-    "bun@0.5.9",
-    "vector@0.29.1"
+    "yt-dlp-light@latest",
+    "bun@latest",
+    "vector@latest"
   ],
   "shell": {},
   "nixpkgs": {

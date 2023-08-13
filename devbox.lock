@@ -1,20 +1,23 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "bun@0.5.9": {
-      "last_modified": "2023-05-01T16:53:22Z",
-      "resolved": "github:NixOS/nixpkgs/8670e496ffd093b60e74e7fa53526aa5920d09eb#bun",
-      "version": "0.5.9"
+    "bun@latest": {
+      "last_modified": "2023-07-23T03:35:12Z",
+      "resolved": "github:NixOS/nixpkgs/af8cd5ded7735ca1df1a1174864daab75feeb64a#bun",
+      "source": "devbox-search",
+      "version": "0.7.0"
     },
-    "vector@0.29.1": {
-      "last_modified": "2023-05-01T16:53:22Z",
-      "resolved": "github:NixOS/nixpkgs/8670e496ffd093b60e74e7fa53526aa5920d09eb#vector",
-      "version": "0.29.1"
+    "vector@latest": {
+      "last_modified": "2023-07-23T03:35:12Z",
+      "resolved": "github:NixOS/nixpkgs/af8cd5ded7735ca1df1a1174864daab75feeb64a#vector",
+      "source": "devbox-search",
+      "version": "0.31.0"
     },
-    "yt-dlp-light@2023.3.4": {
-      "last_modified": "2023-05-01T16:53:22Z",
-      "resolved": "github:NixOS/nixpkgs/8670e496ffd093b60e74e7fa53526aa5920d09eb#yt-dlp-light",
-      "version": "2023.3.4"
+    "yt-dlp-light@latest": {
+      "last_modified": "2023-07-23T03:35:12Z",
+      "resolved": "github:NixOS/nixpkgs/af8cd5ded7735ca1df1a1174864daab75feeb64a#yt-dlp-light",
+      "source": "devbox-search",
+      "version": "2023.7.6"
     }
   }
 }
