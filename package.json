@@ -2,14 +2,14 @@
   "name": "videodl",
   "version": "0.0.2",
   "description": "videodl connector",
-  "main": "index.mjs",
+  "main": "index.ts",
   "prettier": {
     "singleQuote": true
   },
   "dependencies": {
-    "bun-types": "^0.6.4",
-    "firebase": "^9.22.1",
-    "prettier": "^2.8.8",
+    "bun-types": "^1.0.15",
+    "firebase": "^10.7.1",
+    "prettier": "^3.1.0",
     "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {},

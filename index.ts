@@ -37,8 +37,8 @@ type RunResult = {
 };
 
 /** run external command */
-const run = (cmds: string[], cwd: string): Promise<RunResult> =>
-  new Promise((resolve, reject) => {
+function run(cmds: string[], cwd: string): Promise<RunResult> {
+  return new Promise((resolve, reject) => {
     const ret = Bun.spawnSync(cmds, { cwd, env: process.env });
     const result = {
       success: ret.success,
@@ -52,18 +52,18 @@ const run = (cmds: string[], cwd: string): Promise<RunResult> =>
       reject(result.msg);
     }
   });
+}
 
 /** sanitize filename */
-const getSafeBasename = (basename: string) => {
+function getSafeBasename(basename: string) {
   const str = basename.replace(/%/g, '％');
   return sanitize(
     Buffer.byteLength(str, 'utf8') > 200 ? str.substring(0, 50) : str
   );
-};
+}
 
-const execDl =
-  ({ cmd, cwd }: { cmd: string[]; cwd: string }) =>
-  async ({ title, url }: { title: string; url: string }) => {
+function execDl({ cmd, cwd }: { cmd: string[]; cwd: string }) {
+  return async ({ title, url }: { title: string; url: string }) => {
     log.info(`calling ytdl "${title}" (${url})`);
     const basename = getSafeBasename(title);
     if (DRY_RUN) {
@@ -82,64 +82,67 @@ const execDl =
     log.info(`download result ${url}: ${success} - ${msg}`);
     return success;
   };
+}
 
-const VideoDb = () => ({
-  getDatabaseInstance() {
-    const config = {
-      apiKey: process.env.apiKey,
-      authDomain: process.env.authDomain,
-      databaseURL: process.env.databaseURL,
-      storageBucket: process.env.storageBucket,
-    };
-    if (DRY_RUN) log.debug(`config: ${JSON.stringify(config)}`);
-    const app = initializeApp(config);
-    return getDatabase(app);
-  },
+function VideoDb() {
+  return {
+    getDatabaseInstance() {
+      const config = {
+        apiKey: process.env.apiKey,
+        authDomain: process.env.authDomain,
+        databaseURL: process.env.databaseURL,
+        storageBucket: process.env.storageBucket,
+      };
+      if (DRY_RUN) log.debug(`config: ${JSON.stringify(config)}`);
+      const app = initializeApp(config);
+      return getDatabase(app);
+    },
 
-  async forEach(
-    action: (arg: { title: string; url: string }) => Promise<boolean>
-  ) {
-    const database = this.getDatabaseInstance();
-    const snapshot = await get(child(ref(database), 'videos'));
-    const obj: Record<
-      string,
-      { title: string; url: string; error?: string; watched?: boolean }
-    > = snapshot.val();
-    if (!obj) {
-      log.info('empty list');
-      return false;
-    }
-    const tasks = Object.entries(obj)
-      .slice(0, LIMIT)
-      .filter(([_, { url, error }]) => !!url && !error)
-      .map(([videoId, video]) => ({
-        video,
-        videoRef: ref(database, `/videos/${videoId}`),
-      }))
-      .map(async ({ video: { title, url, watched }, videoRef }) => {
-        try {
-          if (watched === true) {
-            log.info(`deleting pre-marked item: ${title}`);
-            await remove(videoRef);
+    async forEach(
+      action: (arg: { title: string; url: string }) => Promise<boolean>
+    ) {
+      const database = this.getDatabaseInstance();
+      const snapshot = await get(child(ref(database), 'videos'));
+      const obj: Record<
+        string,
+        { title: string; url: string; error?: string; watched?: boolean }
+      > = snapshot.val();
+      if (!obj) {
+        log.info('empty list');
+        return false;
+      }
+      const tasks = Object.entries(obj)
+        .slice(0, LIMIT)
+        .filter(([_, { url, error }]) => !!url && !error)
+        .map(([videoId, video]) => ({
+          video,
+          videoRef: ref(database, `/videos/${videoId}`),
+        }))
+        .map(async ({ video: { title, url, watched }, videoRef }) => {
+          try {
+            if (watched === true) {
+              log.info(`deleting pre-marked item: ${title}`);
+              await remove(videoRef);
+              return true;
+            }
+            await action({ title, url });
+            if (DRY_RUN) return true;
+            await set(child(videoRef, 'watched'), true);
             return true;
+          } catch (e) {
+            var msg = typeof e === 'string' ? e : JSON.stringify(e);
+            await set(child(videoRef, `error`), `${msg}`);
+            log.error(`videodl: download failed... ${title} (${msg})`);
+            return false;
           }
-          await action({ title, url });
-          if (DRY_RUN) return true;
-          await set(child(videoRef, 'watched'), true);
-          return true;
-        } catch (e) {
-          var msg = typeof e === 'string' ? e : JSON.stringify(e);
-          await set(child(videoRef, `error`), `${msg}`);
-          log.error(`videodl: download failed... ${title} (${msg})`);
-          return false;
-        }
-      });
-    return tasks.reduce(
-      async (acc, x) => (await acc) && (await x),
-      Promise.resolve(true)
-    );
-  },
-});
+        });
+      return tasks.reduce(
+        async (acc, x) => (await acc) && (await x),
+        Promise.resolve(true)
+      );
+    },
+  };
+}
 
 /** main procedure */
 async function main() {

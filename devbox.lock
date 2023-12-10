@@ -2,22 +2,55 @@
   "lockfile_version": "1",
   "packages": {
     "bun@latest": {
-      "last_modified": "2023-09-10T10:53:27Z",
-      "resolved": "github:NixOS/nixpkgs/78058d810644f5ed276804ce7ea9e82d92bee293#bun",
+      "last_modified": "2023-11-26T23:14:46Z",
+      "resolved": "github:NixOS/nixpkgs/45827faa2132b8eade424f6bdd48d8828754341a#bun",
       "source": "devbox-search",
-      "version": "1.0.0"
+      "version": "1.0.14",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/kv9w6r2b43yfm0hm1ngxjkwxi3p4v36c-bun-1.0.14"
+        },
+        "aarch64-linux": {
+          "store_path": "/nix/store/hd23c00w38wdmv1l9k5xvz0l0h05xcpx-bun-1.0.14"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/rirvcfjgdk0a27hqsk40h2mx4p3c7q0w-bun-1.0.14"
+        }
+      }
     },
     "vector@latest": {
-      "last_modified": "2023-07-23T03:35:12Z",
-      "resolved": "github:NixOS/nixpkgs/af8cd5ded7735ca1df1a1174864daab75feeb64a#vector",
+      "last_modified": "2023-11-21T03:41:45Z",
+      "resolved": "github:NixOS/nixpkgs/51a01a7e5515b469886c120e38db325c96694c2f#vector",
       "source": "devbox-search",
-      "version": "0.31.0"
+      "version": "0.34.1",
+      "systems": {
+        "aarch64-linux": {
+          "store_path": "/nix/store/r4fd1s1mrp6x3cfm2znm05a05blq8d4j-vector-0.34.1"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/gswxqpl07l1r0dxihgwkw6wjn2fll3xi-vector-0.34.1"
+        }
+      }
     },
     "yt-dlp-light@latest": {
-      "last_modified": "2023-07-23T03:35:12Z",
-      "resolved": "github:NixOS/nixpkgs/af8cd5ded7735ca1df1a1174864daab75feeb64a#yt-dlp-light",
+      "last_modified": "2023-11-17T14:14:56Z",
+      "resolved": "github:NixOS/nixpkgs/a71323f68d4377d12c04a5410e214495ec598d4c#yt-dlp-light",
       "source": "devbox-search",
-      "version": "2023.7.6"
+      "version": "2023.11.16",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/ajj076693c2w32xzamd0109xkbr7hvxs-python3.11-yt-dlp-2023.11.16"
+        },
+        "aarch64-linux": {
+          "store_path": "/nix/store/2hdp673ys1r46hbvszq36nx6hwf3230d-python3.11-yt-dlp-2023.11.16"
+        },
+        "x86_64-darwin": {
+          "store_path": "/nix/store/8ysn19faw1xvffbnj7b9vnjfzjxcw1hc-python3.11-yt-dlp-2023.11.16"
+        },
+        "x86_64-linux": {
+          "store_path": "/nix/store/f5j0y5ry25wq8mrxmcxr5csm7mw3zlqk-python3.11-yt-dlp-2023.11.16"
+        }
+      }
     }
   }
 }
