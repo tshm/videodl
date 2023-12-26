@@ -16,3 +16,4 @@ tmp
 .vector.yaml
 .serviceAccount.json
 .yt-dlp.conf
+.env.local
