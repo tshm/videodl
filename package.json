@@ -7,9 +7,10 @@
     "singleQuote": true
   },
   "dependencies": {
-    "bun-types": "^1.0.15",
-    "firebase": "^10.7.1",
-    "prettier": "^3.1.0",
+    "@hyperdx/node-opentelemetry": "^0.6.2",
+    "bun-types": "^1.1.20",
+    "firebase": "^10.12.4",
+    "prettier": "^3.3.3",
     "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {},
