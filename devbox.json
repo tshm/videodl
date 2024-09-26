@@ -1,4 +1,4 @@
 {
-  "packages": ["yt-dlp-light@latest", "bun@latest", "vector@latest"],
-  "shell": {}
+  "packages": ["yt-dlp-light@latest", "bun@latest"],
+  "shell":    {}
 }
