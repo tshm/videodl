@@ -2,8 +2,8 @@
   "lockfile_version": "1",
   "packages": {
     "bun@latest": {
-      "last_modified": "2024-11-18T00:41:09Z",
-      "resolved": "github:NixOS/nixpkgs/5083ec887760adfe12af64830a66807423a859a7#bun",
+      "last_modified": "2024-11-26T10:33:56Z",
+      "resolved": "github:NixOS/nixpkgs/af51545ec9a44eadf3fe3547610a5cdd882bc34e#bun",
       "source": "devbox-search",
       "version": "1.1.34",
       "systems": {
@@ -11,41 +11,41 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xnj00gq1mfffvgyisghk4m9f38gc5c5c-bun-1.1.34",
+              "path": "/nix/store/0hxh6hmzkpg56l11vsnyb287jynhf5f4-bun-1.1.34",
               "default": true
             }
           ],
-          "store_path": "/nix/store/xnj00gq1mfffvgyisghk4m9f38gc5c5c-bun-1.1.34"
+          "store_path": "/nix/store/0hxh6hmzkpg56l11vsnyb287jynhf5f4-bun-1.1.34"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/kccpzv8fb7swmmxbhv805qzq242rhy33-bun-1.1.34",
+              "path": "/nix/store/mc6bikx8a0rqm1xk040w2q861syxpr8d-bun-1.1.34",
               "default": true
             }
           ],
-          "store_path": "/nix/store/kccpzv8fb7swmmxbhv805qzq242rhy33-bun-1.1.34"
+          "store_path": "/nix/store/mc6bikx8a0rqm1xk040w2q861syxpr8d-bun-1.1.34"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/8h5k3l4fpgs3al2wvna7x9ybyyc8k36d-bun-1.1.34",
+              "path": "/nix/store/fn9h6y3v8il2yax5pm965lacxzj8pq9q-bun-1.1.34",
               "default": true
             }
           ],
-          "store_path": "/nix/store/8h5k3l4fpgs3al2wvna7x9ybyyc8k36d-bun-1.1.34"
+          "store_path": "/nix/store/fn9h6y3v8il2yax5pm965lacxzj8pq9q-bun-1.1.34"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/x089g4srqw71w5jnc87vxbh7m12498i0-bun-1.1.34",
+              "path": "/nix/store/mzk71frmsppga4i7sz7ca3r9wxv8slx9-bun-1.1.34",
               "default": true
             }
           ],
-          "store_path": "/nix/store/x089g4srqw71w5jnc87vxbh7m12498i0-bun-1.1.34"
+          "store_path": "/nix/store/mzk71frmsppga4i7sz7ca3r9wxv8slx9-bun-1.1.34"
         }
       }
     },
