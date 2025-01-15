@@ -1,4 +1,8 @@
 {
-  "packages": ["yt-dlp-light@latest", "bun@latest"],
-  "shell":    {}
+  "packages": [
+    "yt-dlp-light@latest",
+    "bun@latest",
+    "ffmpeg@latest"
+  ],
+  "shell": {}
 }
