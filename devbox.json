@@ -1,6 +1,5 @@
 {
   "packages": [
-    "yt-dlp-light@latest",
     "bun@latest",
     "ffmpeg@latest"
   ],
