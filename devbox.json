@@ -1,6 +1,6 @@
 {
   "packages": [
-    "bun@latest",
+    "bun@0.8.1",
     "ffmpeg@latest"
   ],
   "shell": {}
