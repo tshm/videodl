@@ -7,7 +7,7 @@
     "singleQuote": true
   },
   "dependencies": {
-    "@hyperdx/node-opentelemetry": "^0.6.2",
+    "@hyperdx/node-opentelemetry": "^0.8.0",
     "bun-types": "^1.1.43",
     "firebase": "^11.0.0",
     "prettier": "^3.4.2",
