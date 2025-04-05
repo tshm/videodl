@@ -1,7 +1,7 @@
 {
   "packages": [
     "bun@latest",
-    "ffmpeg@latest"
+    "ffmpeg@7.1.1"
   ],
   "shell": {}
 }
