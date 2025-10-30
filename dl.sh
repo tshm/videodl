@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-WD=$(pwd)
 DIR=$(dirname "$0")
 cd "${DIR}" || exit
 
@@ -7,4 +6,5 @@ export PATH=${PATH}:${HOME}/.local/bin:${DIR}/.devbox/nix/profile/default/bin
 export $(cat .env.* | xargs)
 
 yt-dlp -U
-bun run -r '@hyperdx/node-opentelemetry/build/src/tracing' index.ts "${WD}"
+bun run -r '@hyperdx/node-opentelemetry/build/src/tracing' index.ts $TARGET
+
