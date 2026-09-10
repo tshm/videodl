@@ -58,23 +58,29 @@ function run(cmds: string[], cwd: string): Promise<RunResult> {
 function getSafeBasename(basename: string) {
   const str = basename.replace(/%/g, '％');
   return sanitize(
-    Buffer.byteLength(str, 'utf8') > 200 ? str.substring(0, 50) : str
+    Buffer.byteLength(str, 'utf8') > 200 ? str.substring(0, 50) : str,
   );
 }
 
 function execDl({ cmd, cwd }: { cmd: string[]; cwd: string }) {
   return async ({ title, url }: { title: string; url: string }) => {
     log.info(`calling ytdl "${title}" (${url})`);
-    const basename = getSafeBasename(title);
+    const jaPattern =
+      /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/;
+    const lang = jaPattern.test(title) ? 'ja' : 'en';
+    const basename = getSafeBasename(`${lang}_${title}`);
     if (DRY_RUN) {
       log.warn(`DRYRUN: basename:\n-> "${basename}"`);
       return true;
     }
+    const format = `bv[height<=480]+ba[language^=${lang}]/bv*[height<=480]+ba/b[height<=480]`;
     const dlcmd = [
       ...cmd,
       '--no-progress',
       '--output',
-      `${basename}.%(ext)s`,
+      `${lang}_${basename}.%(ext)s`,
+      '-f',
+      format,
       '--',
       url,
     ];
@@ -93,13 +99,13 @@ function VideoDb() {
         databaseURL: process.env.databaseURL,
         storageBucket: process.env.storageBucket,
       };
-      if (DRY_RUN) log.debug(`config: ${JSON.stringify(config)}`);
+      // if (DRY_RUN) log.debug(`config: ${JSON.stringify(config)}`);
       const app = initializeApp(config);
       return getDatabase(app);
     },
 
     async forEach(
-      action: (arg: { title: string; url: string }) => Promise<boolean>
+      action: (arg: { title: string; url: string }) => Promise<boolean>,
     ) {
       const database = this.getDatabaseInstance();
       const snapshot = await get(child(ref(database), 'videos'));
@@ -138,7 +144,7 @@ function VideoDb() {
         });
       return tasks.reduce(
         async (acc, x) => (await acc) && (await x),
-        Promise.resolve(true)
+        Promise.resolve(true),
       );
     },
   };
