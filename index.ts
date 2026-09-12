@@ -62,23 +62,65 @@ function getSafeBasename(basename: string) {
   );
 }
 
+type AudioFormat = {
+  language?: string;
+  format_note?: string;
+  vcodec?: string;
+  acodec?: string;
+  language_preference?: number;
+};
+
+/** original audio language from video metadata; null when unknown */
+function detectOriginalLang(url: string, cmd: string[], cwd: string): Promise<string | null> {
+  const ret = Bun.spawnSync(
+    [...cmd, '--dump-single-json', '--skip-download', '--no-write-subs', '--no-warnings', '--no-playlist', '--no-progress', '--', url],
+    { cwd, env: process.env }
+  );
+  if (!ret.success) return Promise.resolve(null);
+  try {
+    const info = JSON.parse(ret.stdout.toString()) as { formats?: AudioFormat[] };
+    const fmts = info.formats ?? [];
+    const orig = fmts.find((f) => f.format_note?.includes('original') && f.language);
+    if (orig?.language) return Promise.resolve(orig.language.split('-')[0]);
+    const audios = fmts.filter((f) => f.vcodec === 'none' && f.acodec !== 'none' && f.language);
+    const uniq = [...new Set(audios.map((f) => (f.language as string).split('-')[0]))];
+    if (uniq.length === 1) return Promise.resolve(uniq[0]);
+    if (audios.length > 0) {
+      const best = audios.reduce((a, b) => (b.language_preference ?? 0) > (a.language_preference ?? 0) ? b : a);
+      return Promise.resolve((best.language as string).split('-')[0]);
+    }
+    return Promise.resolve(null);
+  } catch {
+    return Promise.resolve(null);
+  }
+}
+
 function execDl({ cmd, cwd }: { cmd: string[]; cwd: string }) {
   return async ({ title, url }: { title: string; url: string }) => {
     log.info(`calling ytdl "${title}" (${url})`);
-    const jaPattern =
-      /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/;
-    const lang = jaPattern.test(title) ? 'ja' : 'en';
-    const basename = getSafeBasename(`${lang}_${title}`);
+    let prefix: string | null = null;
+    if (!DRY_RUN) {
+      try {
+        prefix = await detectOriginalLang(url, cmd, cwd);
+      } catch (e) {
+        log.warn(`lang detect failed for ${url}: ${e}`);
+      }
+    }
+    if (!prefix) {
+      prefix = /[㐀-䶿一-鿿豈-﫿぀-ヿｦ-ﾟ]/.test(title) ? 'ja' : 'en';
+    }
+    const basename = getSafeBasename(`${prefix}_${title}`);
     if (DRY_RUN) {
       log.warn(`DRYRUN: basename:\n-> "${basename}"`);
       return true;
     }
-    const format = `bv[height<=480]+ba[language^=${lang}]/bv*[height<=480]+ba/b[height<=480]`;
+    // prefer original audio; fallback covers single-audio videos without the marker
+    const format = 'bv[height<=480]+ba[format_note*=original]/bv[height<=480]+ba/b[height<=480]';
     const dlcmd = [
       ...cmd,
       '--no-progress',
       '--output',
-      `${lang}_${basename}.%(ext)s`,
+      `${basename}.%(ext)s`,
       '-f',
       format,
       '--',

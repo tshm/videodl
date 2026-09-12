@@ -196,6 +196,10 @@
           "store_path": "/nix/store/vrm3jg8hjkkfdsqagk18xbcig0m9saca-ffmpeg-7.1.1-bin"
         }
       }
+    },
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2026-09-03T02:01:15Z",
+      "resolved": "github:NixOS/nixpkgs/5545adfad2e98de106a5544ca7067e03010410bd?lastModified=1788400875&narHash=sha256-JIHQ6xNAN53cdo6zZ72LRcQ9lpvnABCnNE4hldJ5uZU%3D"
     }
   }
 }
