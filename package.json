@@ -8,9 +8,9 @@
   },
   "dependencies": {
     "@hyperdx/node-opentelemetry": "^0.8.2",
-    "bun-types": "^1.3.14",
-    "firebase": "^12.17.1",
-    "prettier": "^3.9.6",
+    "bun-types": "^1.4.2",
+    "firebase": "^12.19.0",
+    "prettier": "^3.9.9",
     "sanitize-filename": "^1.6.4"
   },
   "devDependencies": {},
