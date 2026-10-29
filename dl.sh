@@ -6,5 +6,6 @@ export PATH=${PATH}:${HOME}/.local/bin:${DIR}/.devbox/nix/profile/default/bin
 export $(cat .env.* | xargs)
 
 yt-dlp -U
-bun run -r '@hyperdx/node-opentelemetry/build/src/tracing' index.ts $TARGET
+# bun run -r '@hyperdx/node-opentelemetry/build/src/tracing' index.ts $TARGET
+bun run index.ts $TARGET
 
