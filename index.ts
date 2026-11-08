@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, remove, child } from 'firebase/database';
 import proc from 'process';
 import sanitize from 'sanitize-filename';
+import { fileURLToPath } from 'node:url';
 
 const log = {
   level: 'debug',
@@ -24,6 +25,10 @@ function processArguments() {
       process.env.YTDLP || 'yt-dlp',
       '--config-locations',
       `${cwd}/.yt-dlp.conf`,
+      '--plugin-dirs',
+      fileURLToPath(new URL('./.yt-dlp-plugins', import.meta.url)),
+      '--extractor-args',
+      'youtube:player_client=mweb',
     ];
     return { cmd, cwd };
   }

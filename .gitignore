@@ -17,3 +17,4 @@ tmp
 .serviceAccount.json
 .yt-dlp.conf
 .env.local
+.yt-dlp-plugins/
