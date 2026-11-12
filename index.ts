@@ -27,8 +27,6 @@ function processArguments() {
       `${cwd}/.yt-dlp.conf`,
       '--plugin-dirs',
       fileURLToPath(new URL('./.yt-dlp-plugins', import.meta.url)),
-      '--extractor-args',
-      'youtube:player_client=mweb',
     ];
     return { cmd, cwd };
   }
