@@ -10,7 +10,7 @@
     "@hyperdx/node-opentelemetry": "^0.8.2",
     "bun-types": "^1.4.4",
     "firebase": "^12.19.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "sanitize-filename": "^1.6.5"
   },
   "devDependencies": {},
