@@ -162,9 +162,14 @@ function VideoDb() {
         log.info('empty list');
         return false;
       }
+      let downloads = 0;
       const tasks = Object.entries(obj)
-        .slice(0, LIMIT)
-        .filter(([_, { url, error }]) => !!url && !error)
+        .filter(([_, { url, error, watched }]) => {
+          if (watched === true) return true;
+          if (!url || error || downloads >= LIMIT) return false;
+          downloads += 1;
+          return true;
+        })
         .map(([videoId, video]) => ({
           video,
           videoRef: ref(database, `/videos/${videoId}`),
@@ -179,6 +184,7 @@ function VideoDb() {
             await action({ title, url });
             if (DRY_RUN) return true;
             await set(child(videoRef, 'watched'), true);
+            await remove(videoRef);
             return true;
           } catch (e) {
             var msg = typeof e === 'string' ? e : JSON.stringify(e);
@@ -187,10 +193,13 @@ function VideoDb() {
             return false;
           }
         });
-      return tasks.reduce(
-        async (acc, x) => (await acc) && (await x),
-        Promise.resolve(true),
-      );
+      const results = await Promise.allSettled(tasks);
+      let success = true;
+      for (const result of results) {
+        if (result.status === 'rejected') throw result.reason;
+        success = success && result.value;
+      }
+      return success;
     },
   };
 }

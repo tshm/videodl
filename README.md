@@ -99,6 +99,17 @@ To start the background downloader process:
 bun run index.ts /path/to/downloads
 ```
 
+Successful downloads are marked `watched=true` and then removed from `/videos`.
+Each run also deletes any existing `watched=true` rows, including rows with an
+error or no URL. `LIMIT` caps eligible downloads, not completed-row cleanup.
+Dry runs skip download writes but still delete existing watched rows.
+
+Run the isolated queue regression checks without Firebase access or downloads:
+
+```bash
+bun test ./index.test.ts
+```
+
 ## Dependencies
 
 The project uses the following dependencies:
